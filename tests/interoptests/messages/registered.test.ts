@@ -20,18 +20,16 @@ describe('Message Serializer', function () {
         const command = `wampproto message registered ${registered.requestID} ${registered.registrationID} --serializer json`;
 
         const output = await runCommand(command);
-        const outputBytes = Buffer.from(output, 'hex');
-        const jsonStr = outputBytes.toString('utf-8');
 
         const serializer = new JSONSerializer();
-        const message = serializer.deserialize(jsonStr);
+        const message = serializer.deserialize(output);
 
         expect(isEqual(registered, message)).toBeTruthy();
     });
 
     it('CBOR Serializer', async function () {
         const registered = new Registered(new RegisteredFields(1, 2));
-        const command = `wampproto message registered ${registered.requestID} ${registered.registrationID} --serializer cbor`;
+        const command = `wampproto message registered ${registered.requestID} ${registered.registrationID} --serializer cbor --output hex`;
 
         const output = await runCommand(command);
         const outputBytes = Buffer.from(output, 'hex');
@@ -44,7 +42,7 @@ describe('Message Serializer', function () {
 
     it('MsgPack Serializer', async function () {
         const registered = new Registered(new RegisteredFields(1, 2));
-        const command = `wampproto message registered ${registered.requestID} ${registered.registrationID} --serializer msgpack`;
+        const command = `wampproto message registered ${registered.requestID} ${registered.registrationID} --serializer msgpack --output hex`;
 
         const output = await runCommand(command);
         const outputBytes = Buffer.from(output, 'hex');

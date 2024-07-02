@@ -23,18 +23,16 @@ describe('Message Serializer', function () {
         const command = `wampproto message invocation ${invocation.requestID} ${invocation.registrationID} --serializer json`;
 
         const output = await runCommand(command);
-        const outputBytes = Buffer.from(output, 'hex');
-        const jsonStr = outputBytes.toString('utf-8');
 
         const serializer = new JSONSerializer();
-        const message = serializer.deserialize(jsonStr);
+        const message = serializer.deserialize(output);
 
         expect(isEqual(invocation, message)).toBeTruthy();
     });
 
     it('CBOR Serializer', async function () {
         const invocation = new Invocation(new InvocationFields(2, 4));
-        const command = `wampproto message invocation ${invocation.requestID} ${invocation.registrationID} --serializer cbor`;
+        const command = `wampproto message invocation ${invocation.requestID} ${invocation.registrationID} --serializer cbor --output hex`;
 
         const output = await runCommand(command);
         const outputBytes = Buffer.from(output, 'hex');
@@ -47,7 +45,7 @@ describe('Message Serializer', function () {
 
     it('MsgPack Serializer', async function () {
         const invocation = new Invocation(new InvocationFields(2, 4));
-        const command = `wampproto message invocation ${invocation.requestID} ${invocation.registrationID} --serializer msgpack`;
+        const command = `wampproto message invocation ${invocation.requestID} ${invocation.registrationID} --serializer msgpack --output hex`;
 
         const output = await runCommand(command);
         const outputBytes = Buffer.from(output, 'hex');
@@ -63,11 +61,9 @@ describe('Message Serializer', function () {
         const command = `wampproto message invocation ${invocation.requestID} ${invocation.registrationID} abcd -k a=b --serializer json`;
 
         const output = await runCommand(command);
-        const outputBytes = Buffer.from(output, 'hex');
-        const jsonStr = outputBytes.toString('utf-8');
 
         const serializer = new JSONSerializer();
-        const message = serializer.deserialize(jsonStr);
+        const message = serializer.deserialize(output);
 
         expect(isEqual(invocation, message)).toBeTruthy();
     });
