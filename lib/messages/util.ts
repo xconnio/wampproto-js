@@ -95,7 +95,7 @@ export function validateIDOrRaise(value: number, index: number, message: string)
     if (error !== null) {
         return error;
     } else if (value < MIN_ID || value > MAX_ID) {
-        return `${message}: value at index ${index} must be between '${MIN_ID}' and '${MAX_ID}' but was ${typeof value}`
+        return `${message}: value at index ${index} must be between '${MIN_ID}' and '${MAX_ID}' but was ${value}`
     }
 
     return null;
