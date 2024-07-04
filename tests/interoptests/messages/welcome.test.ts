@@ -27,7 +27,7 @@ describe('Message Serializer', function () {
                 {"extra": "foo"},
                 )
         );
-        const command = `wampproto message welcome ${welcome.sessionID} -d roles='{"callee": {}}' -d authextra='{"extra": "foo"}' -d authid=${welcome.authID} -d authrole=admin -d authmethod=anonymous --serializer json`;
+        const command = `wampproto message welcome ${welcome.sessionID} --roles callee={} -e '{"extra": "foo"}' --authid ${welcome.authID} --authrole ${welcome.authrole} --authmethod ${welcome.authmethod} --serializer json`;
 
         const output = await runCommand(command);
 
@@ -48,7 +48,7 @@ describe('Message Serializer', function () {
                 {"extra": "foo"},
                 )
         );
-        const command = `wampproto message welcome ${welcome.sessionID} -d roles='{"callee": {}}' -d authextra='{"extra": "foo"}' -d authid=${welcome.authID} -d authrole=admin -d authmethod=anonymous --serializer cbor --output hex`;
+        const command = `wampproto message welcome ${welcome.sessionID} --roles callee={} -e '{"extra": "foo"}' --authid ${welcome.authID} --authrole ${welcome.authrole} --authmethod ${welcome.authmethod} --serializer cbor --output hex`;
 
         const output = await runCommand(command);
         const outputBytes = Buffer.from(output, 'hex');
@@ -70,7 +70,7 @@ describe('Message Serializer', function () {
                 {"extra": "foo"},
                 )
         );
-        const command = `wampproto message welcome ${welcome.sessionID} -d roles='{"callee": {}}' -d authextra='{"extra": "foo"}' -d authid=${welcome.authID} -d authrole=admin -d authmethod=anonymous --serializer msgpack --output hex`;
+        const command = `wampproto message welcome ${welcome.sessionID} --roles callee={} -e '{"extra": "foo"}' --authid ${welcome.authID} --authrole ${welcome.authrole} --authmethod ${welcome.authmethod} --serializer msgpack --output hex`;
 
         const output = await runCommand(command);
         const outputBytes = Buffer.from(output, 'hex');
