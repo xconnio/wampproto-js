@@ -2,10 +2,10 @@ import {runCommand} from "../helpers";
 import {JSONSerializer} from "../../../lib/serializers/json";
 import {CBORSerializer} from "../../../lib/serializers/cbor";
 import {MsgPackSerializer} from "../../../lib/serializers/msgpack";
-import {UnRegistered, UnRegisteredFields} from "../../../lib/messages/unregistered";
+import {Unregistered, UnregisteredFields} from "../../../lib/messages/unregistered";
 
 
-function isEqual(msg1: UnRegistered, msg2: any): boolean {
+function isEqual(msg1: Unregistered, msg2: any): boolean {
     return msg1.requestID === msg2.requestID;
 }
 
@@ -13,7 +13,7 @@ function isEqual(msg1: UnRegistered, msg2: any): boolean {
 describe('Message Serializer', function () {
 
     it('JSON Serializer', async function () {
-        const unregistered = new UnRegistered(new UnRegisteredFields(1));
+        const unregistered = new Unregistered(new UnregisteredFields(1));
         const command = `wampproto message unregistered ${unregistered.requestID} --serializer json`;
 
         const output = await runCommand(command);
@@ -25,7 +25,7 @@ describe('Message Serializer', function () {
     });
 
     it('CBOR Serializer', async function () {
-        const unregistered = new UnRegistered(new UnRegisteredFields(1));
+        const unregistered = new Unregistered(new UnregisteredFields(1));
         const command = `wampproto message unregistered ${unregistered.requestID} --serializer cbor --output hex`;
 
         const output = await runCommand(command);
@@ -38,7 +38,7 @@ describe('Message Serializer', function () {
     });
 
     it('MsgPack Serializer', async function () {
-        const unregistered = new UnRegistered(new UnRegisteredFields(1));
+        const unregistered = new Unregistered(new UnregisteredFields(1));
         const command = `wampproto message unregistered ${unregistered.requestID} --serializer msgpack --output hex`;
 
         const output = await runCommand(command);

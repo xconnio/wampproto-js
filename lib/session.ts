@@ -3,7 +3,7 @@ import {JSONSerializer} from "./serializers/json";
 import Message from "./messages/message";
 import {Call} from "./messages/call";
 import {Register} from "./messages/register";
-import {UnRegister} from "./messages/unregister";
+import {Unregister} from "./messages/unregister";
 import {Yield} from "./messages/yield";
 import {Publish} from "./messages/publish";
 import {Subscribe} from "./messages/subscribe";
@@ -12,7 +12,7 @@ import {Error as Error_} from "./messages/error";
 import {Invocation} from "./messages/invocation";
 import {Result} from "./messages/result";
 import {Registered} from "./messages/registered";
-import {UnRegistered} from "./messages/unregistered";
+import {Unregistered} from "./messages/unregistered";
 import {Published} from "./messages/published";
 import {Subscribed} from "./messages/subscribed";
 import {UnSubscribed} from "./messages/unsubscribed";
@@ -39,7 +39,7 @@ class WAMPSession {
             this._callRequests[msg.requestID] = msg.requestID;
         } else if (msg instanceof Register) {
             this._registerRequests[msg.requestID] = msg.requestID;
-        } else if (msg instanceof UnRegister) {
+        } else if (msg instanceof Unregister) {
             this._unregisterRequests[msg.requestID] = msg.registrationID;
         } else if (msg instanceof Yield) {
             if (!(msg.requestID in this._invocationRequests)) {
@@ -88,17 +88,17 @@ class WAMPSession {
             }
 
             this._registrations[msg.registrationID] = msg.registrationID;
-        } else if (msg instanceof UnRegistered) {
+        } else if (msg instanceof Unregistered) {
             const registrationID: number = this._unregisterRequests[msg.requestID];
             if (registrationID === undefined) {
-                throw Error(`received ${UnRegistered.TEXT} for invalid request ID`);
+                throw Error(`received ${Unregistered.TEXT} for invalid request ID`);
             }
             delete this._unregisterRequests[msg.requestID];
 
             try {
                 delete this._registrations[registrationID];
             } catch (e) {
-                throw Error(`received ${UnRegistered.TEXT} for invalid registration ID`);
+                throw Error(`received ${Unregistered.TEXT} for invalid registration ID`);
             }
         } else if (msg instanceof Invocation) {
             if (!(msg.registrationID in this._registrations)) {
@@ -152,7 +152,7 @@ class WAMPSession {
                     }
                     break;
 
-                case UnRegister.TYPE:
+                case Unregister.TYPE:
                     try {
                         delete this._unregisterRequests[msg.requestID];
                     } catch (e) {

@@ -11,8 +11,8 @@ import {Yield} from "../messages/yield";
 import {Result} from "../messages/result";
 import {Register} from "../messages/register";
 import {Registered} from "../messages/registered";
-import {UnRegister} from "../messages/unregister";
-import {UnRegistered} from "../messages/unregistered";
+import {Unregister} from "../messages/unregister";
+import {Unregistered} from "../messages/unregistered";
 import {Subscribe} from "../messages/subscribe";
 import {Subscribed} from "../messages/subscribed";
 import {UnSubscribe} from "../messages/unsubscribe";
@@ -56,10 +56,10 @@ function ToMessage(wampMsg: any[]): Message {
             return Register.parse(wampMsg);
         case Registered.TYPE:
             return Registered.parse(wampMsg);
-        case UnRegister.TYPE:
-            return UnRegister.parse(wampMsg);
-        case UnRegistered.TYPE:
-            return UnRegistered.parse(wampMsg);
+        case Unregister.TYPE:
+            return Unregister.parse(wampMsg);
+        case Unregistered.TYPE:
+            return Unregistered.parse(wampMsg);
         case Subscribe.TYPE:
             return Subscribe.parse(wampMsg);
         case Subscribed.TYPE:
