@@ -2,9 +2,9 @@ import {runCommand} from "../helpers";
 import {JSONSerializer} from "../../../lib/serializers/json";
 import {CBORSerializer} from "../../../lib/serializers/cbor";
 import {MsgPackSerializer} from "../../../lib/serializers/msgpack";
-import {UnSubscribe, UnSubscribeFields} from "../../../lib/messages/unsubscribe";
+import {Unsubscribe, UnsubscribeFields} from "../../../lib/messages/unsubscribe";
 
-function isEqual(msg1: UnSubscribe, msg2: any): boolean {
+function isEqual(msg1: Unsubscribe, msg2: any): boolean {
     return (
         msg1.requestID === msg2.requestID &&
         msg1.subscriptionID === msg2.subscriptionID
@@ -14,7 +14,7 @@ function isEqual(msg1: UnSubscribe, msg2: any): boolean {
 describe('Message Serializer', function () {
 
     it('JSON Serializer', async function () {
-        const unsubscribe = new UnSubscribe((new UnSubscribeFields(1, 5)));
+        const unsubscribe = new Unsubscribe((new UnsubscribeFields(1, 5)));
         const command = `wampproto message unsubscribe ${unsubscribe.requestID} ${unsubscribe.subscriptionID} --serializer json`;
 
         const output = await runCommand(command);
@@ -26,7 +26,7 @@ describe('Message Serializer', function () {
     });
 
     it('CBOR Serializer', async function () {
-        const unsubscribe = new UnSubscribe(new UnSubscribeFields(1, 3));
+        const unsubscribe = new Unsubscribe(new UnsubscribeFields(1, 3));
         const command = `wampproto message unsubscribe ${unsubscribe.requestID} ${unsubscribe.subscriptionID} --serializer cbor --output hex`;
 
         const output = await runCommand(command);
@@ -39,7 +39,7 @@ describe('Message Serializer', function () {
     });
 
     it('MsgPack Serializer', async function () {
-        const unsubscribe = new UnSubscribe(new UnSubscribeFields(1, 3));
+        const unsubscribe = new Unsubscribe(new UnsubscribeFields(1, 3));
         const command = `wampproto message unsubscribe ${unsubscribe.requestID} ${unsubscribe.subscriptionID} --serializer msgpack --output hex`;
 
         const output = await runCommand(command);
