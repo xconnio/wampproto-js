@@ -5,11 +5,11 @@ import {
     validateRequestID,
 } from "./util";
 
-interface IUnRegisteredFields {
+interface IUnregisteredFields {
     readonly requestID: number;
 }
 
-class UnRegisteredFields implements IUnRegisteredFields {
+class UnregisteredFields implements IUnregisteredFields {
     constructor (private readonly _requestID: number) {}
 
     get requestID(): number {
@@ -17,35 +17,35 @@ class UnRegisteredFields implements IUnRegisteredFields {
     }
 }
 
-class UnRegistered implements Message {
+class Unregistered implements Message {
     static TYPE: number = 67;
     static TEXT: string = "UNREGISTERED";
 
     static VALIDATION_SPEC = new ValidationSpec(
         2,
         2,
-        UnRegistered.TEXT,
+        Unregistered.TEXT,
         {1: validateRequestID},
     )
 
-    constructor(private readonly _fields: IUnRegisteredFields) {}
+    constructor(private readonly _fields: IUnregisteredFields) {}
 
     get requestID(): number {
         return this._fields.requestID;
     }
 
-    static parse(msg: any[]): UnRegistered {
-        const f = validateMessage(msg, UnRegistered.TYPE, UnRegistered.TEXT, UnRegistered.VALIDATION_SPEC)
-        return new UnRegistered(new UnRegisteredFields(f.requestID));
+    static parse(msg: any[]): Unregistered {
+        const f = validateMessage(msg, Unregistered.TYPE, Unregistered.TEXT, Unregistered.VALIDATION_SPEC)
+        return new Unregistered(new UnregisteredFields(f.requestID));
     }
 
     marshal(): any[] {
-        return [UnRegistered.TYPE, this.requestID];
+        return [Unregistered.TYPE, this.requestID];
     }
 
     type(): number {
-        return UnRegistered.TYPE;
+        return Unregistered.TYPE;
     }
 }
 
-export {UnRegistered, UnRegisteredFields};
+export {Unregistered, UnregisteredFields};
