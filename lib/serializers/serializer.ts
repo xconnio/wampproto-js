@@ -1,4 +1,4 @@
-import Message from "../messages/message";
+import {Message} from "../messages/message";
 import {Hello} from "../messages/hello";
 import {Welcome} from "../messages/welcome";
 import {Abort} from "../messages/abort";

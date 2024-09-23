@@ -1,6 +1,6 @@
 import { decode, encode } from 'cbor-x';
 
-import Message from "../messages/message";
+import {Message} from "../messages/message";
 import {Serializer, ToMessage} from "./serializer";
 
 

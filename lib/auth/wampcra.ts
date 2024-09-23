@@ -2,9 +2,9 @@ import { createHmac, randomBytes, timingSafeEqual } from 'crypto';
 
 import { Authenticate, AuthenticateFields } from "../messages/authenticate";
 import {Challenge} from "../messages/challenge";
-import Authenticator from "./authenticator";
+import {ClientAuthenticator} from "./authenticator";
 
-export class WAMPCRAAuthenticator implements Authenticator {
+export class WAMPCRAAuthenticator implements ClientAuthenticator {
     static TYPE = "wampcra"
 
     constructor(

@@ -1,4 +1,4 @@
-import Message from "./messages/message";
+import {Message} from "./messages/message";
 
 export class SessionDetails {
     constructor(

@@ -1,5 +1,5 @@
-import Message, {BinaryPayload} from "./message";
-import ValidationSpec from "./validation-spec";
+import {Message, BinaryPayload} from "./message";
+import {ValidationSpec} from "./validation-spec";
 import {
     validateArgs,
     validateKwArgs,

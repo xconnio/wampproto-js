@@ -1,4 +1,4 @@
-import ClientAuthenticator from "./authenticator";
+import {ClientAuthenticator} from "./authenticator";
 import {Authenticate} from "../messages/authenticate";
 import {Challenge} from "../messages/challenge";
 
