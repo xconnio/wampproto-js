@@ -2,7 +2,8 @@
   "name": "wampproto",
   "version": "0.1.0",
   "description": "Sans-IO WAMP protocol implementation in TypeScript",
-  "main": "index.js",
+  "main": "ts-built/index.js",
+  "types": "types/index.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
