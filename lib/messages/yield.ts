@@ -120,7 +120,7 @@ class Yield implements Message {
         }
 
         if (this.kwargs !== null) {
-            if (this.args !== null) {
+            if (this.args === null) {
                 message.push([]);
             }
 
