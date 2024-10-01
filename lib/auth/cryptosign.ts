@@ -2,9 +2,9 @@ import * as nacl from 'tweetnacl';
 
 import {Authenticate, AuthenticateFields} from "../messages/authenticate";
 import {Challenge} from "../messages/challenge";
-import Authenticator from "./authenticator";
+import {ClientAuthenticator} from "./authenticator";
 
-export class CryptoSignAuthenticator implements Authenticator {
+export class CryptoSignAuthenticator implements ClientAuthenticator {
     static TYPE = "cryptosign"
 
     constructor(

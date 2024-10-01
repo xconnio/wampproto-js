@@ -1,10 +1,10 @@
 import {Serializer} from "./serializers/serializer";
 import {JSONSerializer} from "./serializers/json";
 import {Anonymous} from "./auth/anonymous";
-import ClientAuthenticator from "./auth/authenticator";
+import {ClientAuthenticator} from "./auth/authenticator";
 import {SessionDetails} from "./types";
 import {Hello, HelloFields} from "./messages/hello";
-import Message from "./messages/message";
+import {Message} from "./messages/message";
 import {Welcome} from "./messages/welcome";
 import {Challenge} from "./messages/challenge";
 import {Abort} from "./messages/abort";
@@ -18,7 +18,7 @@ const clientRoles: { [key: string]: { features: { [key: string]: any } } } = {
     subscriber: {features: {}},
 };
 
-class Joiner {
+export class Joiner {
     static stateNone: number = 0;
     static stateHelloSent: number = 1;
     static stateAuthenticateSent: number = 2;

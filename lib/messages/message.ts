@@ -1,10 +1,8 @@
 
-interface Message {
+export interface Message {
     marshal(): any[];
     type(): number
 }
-
-export default Message;
 
 export interface BinaryPayload {
     payloadIsBinary(): boolean;

@@ -1,5 +1,5 @@
-import Message from "./message";
-import ValidationSpec from "./validation-spec";
+import {Message} from "./message";
+import {ValidationSpec} from "./validation-spec";
 import {validateDetails, validateMessage, validateReason} from "./util";
 
 interface IGoodbyeFields {

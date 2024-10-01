@@ -1,6 +1,6 @@
 import {pack, Unpackr} from 'msgpackr';
 
-import Message from "../messages/message";
+import {Message} from "../messages/message";
 import {Serializer, ToMessage} from "./serializer";
 
 

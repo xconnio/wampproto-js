@@ -1,5 +1,5 @@
-import ProtocolError from "./exception";
-import ValidationSpec from "./validation-spec";
+import {ProtocolError} from "./exception";
+import {ValidationSpec} from "./validation-spec";
 
 export const MIN_ID: number = 1
 export const MAX_ID: number = 2 ** 53

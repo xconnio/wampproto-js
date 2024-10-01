@@ -1,6 +1,6 @@
 import {Serializer} from "./serializers/serializer";
 import {JSONSerializer} from "./serializers/json";
-import Message from "./messages/message";
+import {Message} from "./messages/message";
 import {Call} from "./messages/call";
 import {Register} from "./messages/register";
 import {Unregister} from "./messages/unregister";
@@ -18,7 +18,7 @@ import {Subscribed} from "./messages/subscribed";
 import {Unsubscribed} from "./messages/unsubscribed";
 import {Event} from "./messages/event";
 
-class WAMPSession {
+export class WAMPSession {
     // data structures for RPC
     private _callRequests: { [key: number]: number } = {};
     private _registerRequests: { [key: number]: number } = {};
