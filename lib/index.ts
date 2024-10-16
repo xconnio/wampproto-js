@@ -9,7 +9,7 @@ export {JSONSerializer} from "./serializers/json"
 export {CBORSerializer} from "./serializers/cbor"
 export {MsgPackSerializer} from "./serializers/msgpack"
 
-export {SessionDetails, MessageWithRecipient, Publication, Registration, Subscription} from "./types"
+export {SessionDetails} from "./types"
 export {WAMPSession} from "./session"
 export {Joiner} from "./joiner"
 
