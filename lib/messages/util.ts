@@ -59,7 +59,7 @@ export function sanityCheck(wampMessage: any[], minLength: number, maxLength: nu
 }
 
 export function validateIntOrRaise(value: any, index: number, message: string): string | null {
-    if (typeof value !== 'number' || !Number.isInteger(value)) {
+    if ((typeof value !== 'number' || !Number.isInteger(value)) && (typeof value !== 'bigint')) {
         return `${message}: value at index ${index} must be of type '${NUMBER}' but was ${typeof value}`
     }
 
@@ -107,7 +107,7 @@ export function validateRequestID(msg: any[], index: number, fields: Fields, mes
         return error;
     }
 
-    fields.requestID = msg[index];
+    fields.requestID = Number(msg[index]);
     return null;
 }
 
@@ -153,7 +153,7 @@ export function validateSessionID(msg: any[], index: number, fields: Fields, mes
         return error;
     }
 
-    fields.sessionID = msg[index];
+    fields.sessionID = Number(msg[index]);
     return null;
 }
 
@@ -420,7 +420,7 @@ export function validateSubscriptionID(msg: any[], index: number, fields: Fields
         return error;
     }
 
-    fields.subscriptionID = msg[index];
+    fields.subscriptionID = Number(msg[index]);
     return null;
 }
 
@@ -430,7 +430,7 @@ export function validatePublicationID(msg: any[], index: number, fields: Fields,
         return error;
     }
 
-    fields.publicationID = msg[index];
+    fields.publicationID = Number(msg[index]);
     return null;
 }
 
@@ -440,7 +440,7 @@ export function validateRegistrationID(msg: any[], index: number, fields: Fields
         return error;
     }
 
-    fields.registrationID = msg[index];
+    fields.registrationID = Number(msg[index]);
     return null;
 }
 
