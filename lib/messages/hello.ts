@@ -88,12 +88,16 @@ class Hello implements Message {
     }
 
     marshal(): any[] {
-        const details: { [key: string]: any} = {
-            "authid": this.authID,
-            "authrole": this.authrole,
-            "authmethods": this.authmethods,
-            "authextra": this.authextra,
-            "roles": this.roles,
+        const details: { [key: string]: any} = {"roles": this.roles}
+        if (this.authID) {
+            details["authid"] = this.authID;
+        }
+        if (this.authrole) {
+            details["authrole"] = this.authrole;
+        }
+
+        if (this.authmethods) {
+            details["authmethods"] = this.authmethods;
         }
 
         return [Hello.TYPE, this.realm, details]
