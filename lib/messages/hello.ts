@@ -92,8 +92,8 @@ class Hello implements Message {
         if (this.authID) {
             details["authid"] = this.authID;
         }
-        if (this.authrole) {
-            details["authrole"] = this.authrole;
+        if (this.authextra) {
+            details["authextra"] = this.authextra;
         }
 
         if (this.authmethods) {
