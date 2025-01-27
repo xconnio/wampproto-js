@@ -11,7 +11,12 @@ export class CryptoSignAuthenticator implements ClientAuthenticator {
         private readonly _authid: string,
         private readonly _privateKey: string,
         private readonly _authExtra: { [key: string]: any }
-    ) {}
+    ) {
+        if (!("pubkey" in this._authExtra)) {
+            const keyPair = nacl.sign.keyPair.fromSeed(hexToUint8Array(this._privateKey));
+            this._authExtra["pubkey"] = uint8ArrayToString(keyPair.publicKey);
+        }
+    }
 
     get authMethod(): string {
         return CryptoSignAuthenticator.TYPE;
