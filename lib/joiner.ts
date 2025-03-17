@@ -8,7 +8,7 @@ import {Message} from "./messages/message";
 import {Welcome} from "./messages/welcome";
 import {Challenge} from "./messages/challenge";
 import {Abort} from "./messages/abort";
-import {SessionNotReady} from "./exception";
+import {ApplicationError, SessionNotReady} from "./exception";
 import {Authenticate} from "./messages/authenticate";
 
 const clientRoles: { [key: string]: { features: { [key: string]: any } } } = {
@@ -78,7 +78,7 @@ export class Joiner {
             this._state = Joiner.stateAuthenticateSent;
             return authenticate;
         } else if (msg instanceof Abort) {
-            throw Error("received abort");
+            throw new ApplicationError(msg.reason, msg.args, msg.kwargs);
         } else {
             throw Error(`received ${msg.type()} message and session is not established yet`)
         }
