@@ -22,7 +22,6 @@ describe('Message Serializer', function () {
                 "realm1",
                 {"callee": {}},
                 "john",
-                null,
                 ["anonymous"],
                 {"extra": "foo"},
                 )
@@ -43,7 +42,6 @@ describe('Message Serializer', function () {
                 "realm1",
                 {"callee": {}},
                 "john",
-                null,
                 ["anonymous"],
                 {"extra": "foo"},
                 )
@@ -65,7 +63,6 @@ describe('Message Serializer', function () {
                 "realm1",
                 {"callee": {}},
                 "john",
-                null,
                 ["anonymous"],
                 {"extra": "foo"},
                 )

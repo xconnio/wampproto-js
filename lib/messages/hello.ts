@@ -6,7 +6,6 @@ interface IHelloFields {
     readonly realm: string;
     readonly roles: { [key: string]: any },
     readonly authid: string;
-    readonly authrole: string;
     readonly authmethods: string[];
     readonly authextra: { [key: string]: any };
 }
@@ -16,7 +15,6 @@ class HelloFields implements IHelloFields {
         private readonly _realm: string,
         private readonly _roles: { [key: string]: any },
         private readonly _authid: string | null = null,
-        private readonly _authrole: string | null = null,
         private readonly _authmethods: string[] | null = null,
         private readonly _authextra: { [key: string]: any } | null = null
     ) {}
@@ -31,10 +29,6 @@ class HelloFields implements IHelloFields {
 
     get authid(): string {
         return this._authid;
-    }
-
-    get authrole(): string {
-        return this._authrole;
     }
 
     get authmethods(): string[] {
@@ -70,10 +64,6 @@ class Hello implements Message {
         return this._fields.authid;
     }
 
-    get authrole(): string {
-        return this._fields.authrole;
-    }
-
     get authmethods(): string[] {
         return this._fields.authmethods;
     }
@@ -84,7 +74,7 @@ class Hello implements Message {
 
     static parse(msg: any[]): Hello {
         const f = validateMessage(msg, Hello.TYPE, Hello.TEXT, Hello.VALIDATION_SPEC)
-        return new Hello(new HelloFields(f.realm, f.roles, f.authid, f.authrole, f.authmethods, f.authextra));
+        return new Hello(new HelloFields(f.realm, f.roles, f.authid, f.authmethods, f.authextra));
     }
 
     marshal(): any[] {
