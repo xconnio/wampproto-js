@@ -40,7 +40,6 @@ export class Joiner {
                 this._realm,
                 clientRoles,
                 this._authenticator.authID,
-                null,
                 [this._authenticator.authMethod],
                 this._authenticator.authExtra,
             )
