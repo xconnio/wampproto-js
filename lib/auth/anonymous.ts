@@ -3,11 +3,15 @@ import {Authenticate} from "../messages/authenticate";
 import {Challenge} from "../messages/challenge";
 
 export class Anonymous implements ClientAuthenticator {
+    static TYPE = "anonymous"
+
     _authExtra: object;
     _authID: string;
-    _authMethod: string = "anonymous";
 
     constructor(authID: string, authExtra: object) {
+        if (authExtra == null) {
+            authExtra = {};
+        }
         this._authID = authID;
         this._authExtra = authExtra;
     }
@@ -25,6 +29,6 @@ export class Anonymous implements ClientAuthenticator {
     }
 
     get authMethod(): string {
-        return this._authMethod;
+        return Anonymous.TYPE;
     }
 }

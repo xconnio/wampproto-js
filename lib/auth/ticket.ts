@@ -3,9 +3,10 @@ import {Authenticate, AuthenticateFields} from "../messages/authenticate";
 import {Challenge} from "../messages/challenge";
 
 export class Ticket implements ClientAuthenticator {
+    static TYPE = "ticket"
+
     _authExtra: object;
     _authID: string;
-    _authMethod: string = "ticket";
     _ticket: string;
 
     constructor(authID: string, authExtra: object, ticket: string) {
@@ -27,6 +28,6 @@ export class Ticket implements ClientAuthenticator {
     }
 
     get authMethod(): string {
-        return this._authMethod;
+        return Ticket.TYPE;
     }
 }
