@@ -11,7 +11,7 @@ import {Abort} from "./messages/abort";
 import {ApplicationError, SessionNotReady} from "./exception";
 import {Authenticate} from "./messages/authenticate";
 
-const clientRoles: { [key: string]: { features: { [key: string]: any } } } = {
+export const clientRoles: { [key: string]: { features: { [key: string]: any } } } = {
     caller: {features: {}},
     callee: {features: {}},
     publisher: {features: {}},
