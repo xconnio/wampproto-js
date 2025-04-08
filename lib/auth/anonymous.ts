@@ -2,7 +2,7 @@ import {ClientAuthenticator} from "./authenticator";
 import {Authenticate} from "../messages/authenticate";
 import {Challenge} from "../messages/challenge";
 
-export class Anonymous implements ClientAuthenticator {
+export class AnonymousAuthenticator implements ClientAuthenticator {
     static TYPE = "anonymous"
 
     _authExtra: object;
@@ -29,6 +29,6 @@ export class Anonymous implements ClientAuthenticator {
     }
 
     get authMethod(): string {
-        return Anonymous.TYPE;
+        return AnonymousAuthenticator.TYPE;
     }
 }

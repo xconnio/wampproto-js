@@ -6,7 +6,7 @@ import {SessionNotReady, ApplicationError} from "./exception";
 import {JSONSerializer} from "./serializers/json";
 import {Hello} from "./messages/hello";
 import {clientRoles} from "./joiner";
-import {Ticket} from "./auth/ticket";
+import {TicketAuthenticator} from "./auth/ticket";
 import {Authenticate} from "./messages/authenticate";
 
 const testRealm = "test.realm";
@@ -47,7 +47,7 @@ describe("Joiner", () => {
     });
 
     test("receiveChallengeMessage", () => {
-        const authenticator = new Ticket(testAuthID, {}, "test");
+        const authenticator = new TicketAuthenticator(testAuthID, {}, "test");
         const joiner = new Joiner(testRealm, new JSONSerializer(), authenticator);
         joiner.sendHello();
 

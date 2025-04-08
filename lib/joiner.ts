@@ -1,6 +1,6 @@
 import {Serializer} from "./serializers/serializer";
 import {JSONSerializer} from "./serializers/json";
-import {Anonymous} from "./auth/anonymous";
+import {AnonymousAuthenticator} from "./auth/anonymous";
 import {ClientAuthenticator} from "./auth/authenticator";
 import {SessionDetails} from "./types";
 import {Hello, HelloFields} from "./messages/hello";
@@ -30,7 +30,7 @@ export class Joiner {
     constructor(
         private readonly _realm: string,
         private readonly _serializer: Serializer = new JSONSerializer(),
-        private readonly _authenticator: ClientAuthenticator = new Anonymous("", {})
+        private readonly _authenticator: ClientAuthenticator = new AnonymousAuthenticator("", {})
     ) {
     }
 

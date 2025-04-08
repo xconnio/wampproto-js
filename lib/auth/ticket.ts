@@ -2,7 +2,7 @@ import {ClientAuthenticator} from "./authenticator";
 import {Authenticate, AuthenticateFields} from "../messages/authenticate";
 import {Challenge} from "../messages/challenge";
 
-export class Ticket implements ClientAuthenticator {
+export class TicketAuthenticator implements ClientAuthenticator {
     static TYPE = "ticket"
 
     _authExtra: object;
@@ -28,6 +28,6 @@ export class Ticket implements ClientAuthenticator {
     }
 
     get authMethod(): string {
-        return Ticket.TYPE;
+        return TicketAuthenticator.TYPE;
     }
 }
