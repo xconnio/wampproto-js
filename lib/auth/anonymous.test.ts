@@ -1,10 +1,10 @@
-import {Anonymous} from "./anonymous";
+import {AnonymousAuthenticator} from "./anonymous";
 import {Challenge, ChallengeFields} from "../messages/challenge";
 
 describe("Anonymous Authenticator", () => {
     const testAuthID = "foo";
 
-    const authenticator = new Anonymous(testAuthID, null);
+    const authenticator = new AnonymousAuthenticator(testAuthID, null);
 
     it("constructor", () => {
         expect(authenticator.authID).toEqual(testAuthID);

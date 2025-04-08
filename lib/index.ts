@@ -1,5 +1,5 @@
-export {Ticket} from "./auth/ticket"
-export {Anonymous} from "./auth/anonymous"
+export {TicketAuthenticator} from "./auth/ticket"
+export {AnonymousAuthenticator} from "./auth/anonymous"
 export {WAMPCRAAuthenticator} from "./auth/wampcra"
 export {CryptoSignAuthenticator} from "./auth/cryptosign"
 export {ClientAuthenticator} from "./auth/authenticator"
