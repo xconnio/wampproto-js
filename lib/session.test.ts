@@ -16,188 +16,189 @@ import {Unsubscribe, UnsubscribeFields} from "./messages/unsubscribe";
 import {Unsubscribed, UnsubscribedFields} from "./messages/unsubscribed";
 import {Result, ResultFields} from "./messages/result";
 import {Error as Error_, ErrorFields} from "./messages/error";
+import {CBORSerializer} from "./serializers/cbor";
+import {MsgPackSerializer} from "./serializers/msgpack";
 
-describe("WAMPSession", () => {
-    const serializer = new JSONSerializer();
-    const session = new WAMPSession(serializer);
+const serializers = [
+    {name: "JSON", instance: new JSONSerializer()},
+    {name: "CBOR", instance: new CBORSerializer()},
+    {name: "MessagePack", instance: new MsgPackSerializer()}
+];
 
-    test("send Register and received Registered", () => {
-        const register = new Register(new RegisterFields(2, "io.xconn.test"));
-        const toSend = session.sendMessage(register);
-        expect(toSend).toEqual(JSON.stringify([Register.TYPE, 2, {}, "io.xconn.test"]));
+serializers.forEach(({name, instance: serializer}) => {
+    describe(`WAMPSession with ${name} serializer`, () => {
+        const session = new WAMPSession(serializer);
 
-        const registered = new Registered(new RegisteredFields(2, 3));
-        const received = session.receive(serializer.serialize(registered));
-        expect(received).toEqual(registered);
-    });
+        test("send Register and received Registered", () => {
+            const register = new Register(new RegisterFields(2, "io.xconn.test"));
+            session.sendMessage(register);
 
-    test("send Call and receive Result", () => {
-        const call = new Call(new CallFields(10, "io.xconn.test"));
-        const toSend = session.sendMessage(call);
-        expect(toSend).toBe(JSON.stringify([Call.TYPE, 10, {}, "io.xconn.test"]));
+            const registered = new Registered(new RegisteredFields(2, 3));
+            const received = session.receive(serializer.serialize(registered));
+            expect(received).toEqual(registered);
+        });
 
-        const result = new Result(new ResultFields(10));
-        const received = session.receive(serializer.serialize(result));
-        expect(received).toEqual(result);
-    });
+        test("send Call and receive Result", () => {
+            const call = new Call(new CallFields(10, "io.xconn.test"));
+            session.sendMessage(call);
 
-    test("receive Invocation and send Yield", () => {
-        // register a procedure
-        session.sendMessage(new Register(new RegisterFields(2, "io.xconn.test")));
-        session.receive(serializer.serialize(new Registered(new RegisteredFields(2, 3))));
+            const result = new Result(new ResultFields(10));
+            const received = session.receive(serializer.serialize(result));
+            expect(received).toEqual(result);
+        });
 
-        const invocation = new Invocation(new InvocationFields(4, 3));
-        const receivedInvocation = session.receive(serializer.serialize(invocation));
-        expect(receivedInvocation).toEqual(invocation);
+        test("receive Invocation and send Yield", () => {
+            // register a procedure
+            session.sendMessage(new Register(new RegisterFields(2, "io.xconn.test")));
+            session.receive(serializer.serialize(new Registered(new RegisteredFields(2, 3))));
 
-        const yieldMsg = new Yield(new YieldFields(4));
-        const toSend = session.sendMessage(yieldMsg);
-        expect(toSend).toBe(JSON.stringify([Yield.TYPE, 4, {}]));
-    });
+            const invocation = new Invocation(new InvocationFields(4, 3));
+            const receivedInvocation = session.receive(serializer.serialize(invocation));
+            expect(receivedInvocation).toEqual(invocation);
 
-    test("send Unregister and receive Unregistered", () => {
-        // register a procedure
-        session.sendMessage(new Register(new RegisterFields(2, "io.xconn.test")));
-        session.receive(serializer.serialize(new Registered(new RegisteredFields(2, 3))));
+            const yieldMsg = new Yield(new YieldFields(4));
+            session.sendMessage(yieldMsg);
+        });
 
-        const unregister = new Unregister(new UnregisterFields(3, 3));
-        const toSend = session.sendMessage(unregister);
-        expect(toSend).toBe(JSON.stringify([Unregister.TYPE, 3, 3]));
+        test("send Unregister and receive Unregistered", () => {
+            // register a procedure
+            session.sendMessage(new Register(new RegisterFields(2, "io.xconn.test")));
+            session.receive(serializer.serialize(new Registered(new RegisteredFields(2, 3))));
 
-        const unregistered = new Unregistered(new UnregisteredFields(3));
-        const received = session.receive(serializer.serialize(unregistered));
-        expect(received).toEqual(unregistered);
-    });
+            const unregister = new Unregister(new UnregisterFields(3, 3));
+            session.sendMessage(unregister);
 
-    test("send Publish with acknowledge and receive Published", () => {
-        const publish = new Publish(new PublishFields(6, "topic", null, null, {acknowledge: true}));
-        const toSend = session.sendMessage(publish);
-        expect(toSend).toBe(JSON.stringify([Publish.TYPE, 6, {acknowledge: true}, "topic"]));
+            const unregistered = new Unregistered(new UnregisteredFields(3));
+            const received = session.receive(serializer.serialize(unregistered));
+            expect(received).toEqual(unregistered);
+        });
 
-        const published = new Published(new PublishedFields(6, 6));
-        const received = session.receive(serializer.serialize(published));
-        expect(received).toEqual(published);
-    });
+        test("send Publish with acknowledge and receive Published", () => {
+            const publish = new Publish(new PublishFields(6, "topic", null, null, {acknowledge: true}));
+            session.sendMessage(publish);
 
-    test("send Subscribe and receive Subscribed/Event", () => {
-        const subscribe = new Subscribe(new SubscribeFields(7, "topic"));
-        const toSend = session.sendMessage(subscribe);
-        expect(toSend).toBe(JSON.stringify([Subscribe.TYPE, 7, {}, "topic"]));
+            const published = new Published(new PublishedFields(6, 6));
+            const received = session.receive(serializer.serialize(published));
+            expect(received).toEqual(published);
+        });
 
-        const subscribed = new Subscribed(new SubscribedFields(7, 8));
-        const received = session.receive(serializer.serialize(subscribed));
-        expect(received).toEqual(subscribed);
+        test("send Subscribe and receive Subscribed/Event", () => {
+            const subscribe = new Subscribe(new SubscribeFields(7, "topic"));
+            session.sendMessage(subscribe);
 
-        const event = new Event(new EventFields(8, 6));
-        const receivedEvent = session.receive(serializer.serialize(event));
-        expect(receivedEvent).toEqual(event);
-    });
+            const subscribed = new Subscribed(new SubscribedFields(7, 8));
+            const received = session.receive(serializer.serialize(subscribed));
+            expect(received).toEqual(subscribed);
 
-    test("send Unsubscribe and receive Unsubscribed", () => {
-        // subscribe a topic
-        session.sendMessage(new Subscribe(new SubscribeFields(7, "topic")));
-        session.receive(serializer.serialize(new Subscribed(new SubscribedFields(7, 8))));
+            const event = new Event(new EventFields(8, 6));
+            const receivedEvent = session.receive(serializer.serialize(event));
+            expect(receivedEvent).toEqual(event);
+        });
 
-        const unsubscribe = new Unsubscribe(new UnsubscribeFields(9, 8));
-        const toSend = session.sendMessage(unsubscribe);
-        expect(toSend).toBe(JSON.stringify([Unsubscribe.TYPE, 9, 8]));
+        test("send Unsubscribe and receive Unsubscribed", () => {
+            // subscribe a topic
+            session.sendMessage(new Subscribe(new SubscribeFields(7, "topic")));
+            session.receive(serializer.serialize(new Subscribed(new SubscribedFields(7, 8))));
 
-        const unsubscribed = new Unsubscribed(new UnsubscribedFields(9));
-        const received = session.receive(serializer.serialize(unsubscribed));
-        expect(received).toEqual(unsubscribed);
-    });
+            const unsubscribe = new Unsubscribe(new UnsubscribeFields(9, 8));
+            session.sendMessage(unsubscribe);
 
-    test("sendError", () => {
-        const error = new Error_(new ErrorFields(Invocation.TYPE, 10, "errorProcedureAlreadyExists"));
-        const toSend = session.sendMessage(error);
-        expect(toSend).toEqual(`[${Error_.TYPE},${Invocation.TYPE},${error.requestID},{},"${error.uri}"]`);
-    });
+            const unsubscribed = new Unsubscribed(new UnsubscribedFields(9));
+            const received = session.receive(serializer.serialize(unsubscribed));
+            expect(received).toEqual(unsubscribed);
+        });
 
-    test('receiveError', () => {
-        // send Call message and receive Error for that Call
-        const call = new Call(new CallFields(1, "io.xconn.test"));
-        session.sendMessage(call);
+        test("sendError", () => {
+            const error = new Error_(new ErrorFields(Invocation.TYPE, 10, "errorProcedureAlreadyExists"));
+            session.sendMessage(error);
+        });
 
-        const callErr = new Error_(new ErrorFields(Call.TYPE, call.requestID, "errorInvalidArgument"));
-        const received = session.receive(serializer.serialize(callErr));
-        expect(received).toEqual(callErr);
+        test('receiveError', () => {
+            // send Call message and receive Error for that Call
+            const call = new Call(new CallFields(1, "io.xconn.test"));
+            session.sendMessage(call);
 
-        // send Register message and receive Error for that Register
-        const register = new Register(new RegisterFields(2, "io.xconn.test"));
-        session.sendMessage(register);
+            const callErr = new Error_(new ErrorFields(Call.TYPE, call.requestID, "errorInvalidArgument"));
+            const received = session.receive(serializer.serialize(callErr));
+            expect(received).toEqual(callErr);
 
-        const registerErr = new Error_(new ErrorFields(Register.TYPE, register.requestID, "errorInvalidArgument"));
-        const receivedRegisterError = session.receive(serializer.serialize(registerErr));
-        expect(receivedRegisterError).toEqual(registerErr);
+            // send Register message and receive Error for that Register
+            const register = new Register(new RegisterFields(2, "io.xconn.test"));
+            session.sendMessage(register);
 
-        // send Unregister message and receive Error for that Unregister
-        const unregister = new Unregister(new UnregisterFields(3, 3));
-        session.sendMessage(unregister);
+            const registerErr = new Error_(new ErrorFields(Register.TYPE, register.requestID, "errorInvalidArgument"));
+            const receivedRegisterError = session.receive(serializer.serialize(registerErr));
+            expect(receivedRegisterError).toEqual(registerErr);
 
-        const unregisterErr = new Error_(new ErrorFields(Unregister.TYPE, unregister.requestID, "errorInvalidArgument"));
-        const receivedUnregisterError = session.receive(serializer.serialize(unregisterErr));
-        expect(receivedUnregisterError).toEqual(unregisterErr);
+            // send Unregister message and receive Error for that Unregister
+            const unregister = new Unregister(new UnregisterFields(3, 3));
+            session.sendMessage(unregister);
 
-        // send Subscribe message and receive Error for that Subscribe
-        const subscribe = new Subscribe(new SubscribeFields(7, "topic"));
-        session.sendMessage(subscribe);
+            const unregisterErr = new Error_(new ErrorFields(Unregister.TYPE, unregister.requestID, "errorInvalidArgument"));
+            const receivedUnregisterError = session.receive(serializer.serialize(unregisterErr));
+            expect(receivedUnregisterError).toEqual(unregisterErr);
 
-        const subscribeError = new Error_(new ErrorFields(Subscribe.TYPE, subscribe.requestID, "errorInvalidArgument"));
-        const receivedSubscribedError = session.receive(serializer.serialize(subscribeError))
-        expect(receivedSubscribedError).toEqual(subscribeError);
+            // send Subscribe message and receive Error for that Subscribe
+            const subscribe = new Subscribe(new SubscribeFields(7, "topic"));
+            session.sendMessage(subscribe);
 
-        // send Unsubscribe message and receive Error for that Unsubscribe
-        const unsubscribe = new Unsubscribe(new UnsubscribeFields(8, 8));
-        session.sendMessage(unsubscribe);
+            const subscribeError = new Error_(new ErrorFields(Subscribe.TYPE, subscribe.requestID, "errorInvalidArgument"));
+            const receivedSubscribedError = session.receive(serializer.serialize(subscribeError))
+            expect(receivedSubscribedError).toEqual(subscribeError);
 
-        const unsubscribeError = new Error_(new ErrorFields(Unsubscribe.TYPE, unsubscribe.requestID, "errorInvalidArgument"));
-        const receivedUnsubscribeError = session.receive(serializer.serialize(unsubscribeError));
-        expect(receivedUnsubscribeError).toEqual(unsubscribeError);
+            // send Unsubscribe message and receive Error for that Unsubscribe
+            const unsubscribe = new Unsubscribe(new UnsubscribeFields(8, 8));
+            session.sendMessage(unsubscribe);
 
-        // send Publish message and receive Error for that Publish
-        const publish = new Publish(new PublishFields(6, "topic", null, null, {acknowledge: true}));
-        session.sendMessage(publish);
+            const unsubscribeError = new Error_(new ErrorFields(Unsubscribe.TYPE, unsubscribe.requestID, "errorInvalidArgument"));
+            const receivedUnsubscribeError = session.receive(serializer.serialize(unsubscribeError));
+            expect(receivedUnsubscribeError).toEqual(unsubscribeError);
 
-        const publishError = new Error_(new ErrorFields(Publish.TYPE, publish.requestID, "errorInvalidArgument"));
-        const receivedPublishError = session.receive(serializer.serialize(publishError));
-        expect(receivedPublishError).toEqual(publishError);
-    });
+            // send Publish message and receive Error for that Publish
+            const publish = new Publish(new PublishFields(6, "topic", null, null, {acknowledge: true}));
+            session.sendMessage(publish);
 
-    test('exceptions', () => {
-        // send Yield for unknown invocation
-        const invalidYield = new Yield(new YieldFields(5));
-        expect(() => session.sendMessage(invalidYield)).toThrow(Error);
+            const publishError = new Error_(new ErrorFields(Publish.TYPE, publish.requestID, "errorInvalidArgument"));
+            const receivedPublishError = session.receive(serializer.serialize(publishError));
+            expect(receivedPublishError).toEqual(publishError);
+        });
 
-        // send error for invalid message
-        const invalidError = new Error_(new ErrorFields(Register.TYPE, 10, "errorProcedureAlreadyExists"));
-        expect(() => session.sendMessage(invalidError)).toThrow(Error);
+        test('exceptions', () => {
+            // send Yield for unknown invocation
+            const invalidYield = new Yield(new YieldFields(5));
+            expect(() => session.sendMessage(invalidYield)).toThrow(Error);
 
-        // send invalid message
-        const invalidMessage = new Registered(new RegisteredFields(11, 12));
-        expect(() => session.sendMessage(invalidMessage)).toThrow(Error);
+            // send error for invalid message
+            const invalidError = new Error_(new ErrorFields(Register.TYPE, 10, "errorProcedureAlreadyExists"));
+            expect(() => session.sendMessage(invalidError)).toThrow(Error);
 
-        // receive invalid message
-        expect(() => session.receive(serializer.serialize(new Register(new RegisterFields(100, "io.xconn.test"))))).toThrow(Error);
+            // send invalid message
+            const invalidMessage = new Registered(new RegisteredFields(11, 12));
+            expect(() => session.sendMessage(invalidMessage)).toThrow(Error);
 
-        // receive error for invalid message
-        expect(() => session.receive(serializer.serialize(new Error_(new ErrorFields(Registered.TYPE, 100, "errorInvalidArgument"))))).toThrow(Error);
+            // receive invalid message
+            expect(() => session.receive(serializer.serialize(new Register(new RegisterFields(100, "io.xconn.test"))))).toThrow(Error);
 
-        // receive error for invalid Call id
-        expect(() => session.receive(serializer.serialize(new Error_(new ErrorFields(Call.TYPE, 100, "errorInvalidArgument"))))).toThrow(Error);
+            // receive error for invalid message
+            expect(() => session.receive(serializer.serialize(new Error_(new ErrorFields(Registered.TYPE, 100, "errorInvalidArgument"))))).toThrow(Error);
 
-        // receive error for invalid Register id
-        expect(() => session.receive(serializer.serialize(new Error_(new ErrorFields(Register.TYPE, 100, "errorInvalidArgument"))))).toThrow(Error);
+            // receive error for invalid Call id
+            expect(() => session.receive(serializer.serialize(new Error_(new ErrorFields(Call.TYPE, 100, "errorInvalidArgument"))))).toThrow(Error);
 
-        // receive error for invalid Unregister id
-        expect(() => session.receive(serializer.serialize(new Error_(new ErrorFields(Unregister.TYPE, 100, "errorInvalidArgument"))))).toThrow(Error);
+            // receive error for invalid Register id
+            expect(() => session.receive(serializer.serialize(new Error_(new ErrorFields(Register.TYPE, 100, "errorInvalidArgument"))))).toThrow(Error);
 
-        // receive error for invalid Subscribe id
-        expect(() => session.receive(serializer.serialize(new Error_(new ErrorFields(Subscribe.TYPE, 100, "errorInvalidArgument"))))).toThrow(Error);
+            // receive error for invalid Unregister id
+            expect(() => session.receive(serializer.serialize(new Error_(new ErrorFields(Unregister.TYPE, 100, "errorInvalidArgument"))))).toThrow(Error);
 
-        // receive error for invalid Unsubscribe id
-        expect(() => session.receive(serializer.serialize(new Error_(new ErrorFields(Unsubscribe.TYPE, 100, "errorInvalidArgument"))))).toThrow(Error);
+            // receive error for invalid Subscribe id
+            expect(() => session.receive(serializer.serialize(new Error_(new ErrorFields(Subscribe.TYPE, 100, "errorInvalidArgument"))))).toThrow(Error);
 
-        // receive error invalid Publish id
-        expect(() => session.receive(serializer.serialize(new Error_(new ErrorFields(Publish.TYPE, 100, "errorInvalidArgument"))))).toThrow(Error);
+            // receive error for invalid Unsubscribe id
+            expect(() => session.receive(serializer.serialize(new Error_(new ErrorFields(Unsubscribe.TYPE, 100, "errorInvalidArgument"))))).toThrow(Error);
+
+            // receive error invalid Publish id
+            expect(() => session.receive(serializer.serialize(new Error_(new ErrorFields(Publish.TYPE, 100, "errorInvalidArgument"))))).toThrow(Error);
+        });
     });
 });
