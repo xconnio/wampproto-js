@@ -138,50 +138,50 @@ export class WAMPSession {
         } else if (msg instanceof Error_) {
             switch (msg.messageType) {
                 case Call.TYPE:
-                    try {
-                        delete this._callRequests[msg.requestID];
-                    } catch (e) {
+                    if (!(msg.requestID in this._callRequests)) {
                         throw Error(`received ${Error_.TEXT} for invalid call request`);
                     }
+
+                    delete this._callRequests[msg.requestID];
                     break;
                 case Register.TYPE:
-                    try {
-                        delete this._registerRequests[msg.requestID];
-                    } catch (e) {
+                    if (!(msg.requestID in this._registerRequests)) {
                         throw Error(`received ${Error_.TEXT} for invalid register request`);
                     }
+
+                    delete this._registerRequests[msg.requestID];
                     break;
 
                 case Unregister.TYPE:
-                    try {
-                        delete this._unregisterRequests[msg.requestID];
-                    } catch (e) {
+                    if (!(msg.requestID in this._unregisterRequests)) {
                         throw Error(`received ${Error_.TEXT} for invalid unregister request`);
                     }
+
+                    delete this._unregisterRequests[msg.requestID];
                     break;
 
                 case Subscribe.TYPE:
-                    try {
-                        delete this._subscribeRequests[msg.requestID];
-                    } catch (e) {
+                    if (!(msg.requestID in this._subscribeRequests)) {
                         throw Error(`received ${Error_.TEXT} for invalid subscribe request`);
                     }
+
+                    delete this._subscribeRequests[msg.requestID];
                     break;
 
                 case Unsubscribe.TYPE:
-                    try {
-                        delete this._unsubscribeRequests[msg.requestID];
-                    } catch (e) {
+                    if (!(msg.requestID in this._unsubscribeRequests)) {
                         throw Error(`received ${Error_.TEXT} for invalid unsubscribe request`);
                     }
+
+                    delete this._unsubscribeRequests[msg.requestID];
                     break;
 
                 case Publish.TYPE:
-                    try {
-                        delete this._publishRequests[msg.requestID];
-                    } catch (e) {
+                    if (!(msg.requestID in this._publishRequests)) {
                         throw Error(`received ${Error_.TEXT} for invalid publish request`);
                     }
+
+                    delete this._publishRequests[msg.requestID];
                     break;
 
                 default:
