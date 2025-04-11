@@ -12,7 +12,7 @@ import {
 interface ICallFields {
     readonly requestID: number;
     readonly uri: string;
-    readonly args: string[] | null;
+    readonly args: any[] | null;
     readonly kwargs: { [key: string]: any } | null;
     readonly options: { [key: string]: any };
     readonly binaryPayload: BinaryPayload;
@@ -23,7 +23,7 @@ class CallFields implements ICallFields {
     constructor (
         private readonly _requestID: number,
         private readonly _uri: string,
-        private readonly _args: string[] | null = null,
+        private readonly _args: any[] | null = null,
         private readonly _kwargs: { [key: string]: any } | null = null,
         options: { [key: string]: any } | null = null,
 
@@ -41,7 +41,7 @@ class CallFields implements ICallFields {
         return this._uri;
     }
 
-    get args(): string[] | null {
+    get args(): any[] | null {
         return this._args;
     }
 
@@ -97,7 +97,7 @@ class Call implements Message {
         return this._fields.uri;
     }
 
-    get args(): string[] | null {
+    get args(): any[] | null {
         return this._fields.args;
     }
 

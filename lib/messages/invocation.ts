@@ -11,7 +11,7 @@ import {
 interface IInvocationFields {
     readonly requestID: number;
     readonly registrationID: number;
-    readonly args: string[] | null;
+    readonly args: any[] | null;
     readonly kwargs: { [key: string]: any } | null
     readonly details: { [key: string]: any };
     readonly binaryPayload: BinaryPayload;
@@ -22,7 +22,7 @@ class InvocationFields implements IInvocationFields {
     constructor (
         private readonly _requestID: number,
         private readonly _registrationID: number,
-        private readonly _args: string[] | null = null,
+        private readonly _args: any[] | null = null,
         private readonly _kwargs: { [key: string]: any } | null = null,
         details: { [key: string]: any } | null = null,
 
@@ -40,7 +40,7 @@ class InvocationFields implements IInvocationFields {
         return this._registrationID;
     }
 
-    get args(): string[] | null {
+    get args(): any[] | null {
         return this._args;
     }
 
@@ -96,7 +96,7 @@ class Invocation implements Message {
         return this._fields.registrationID;
     }
 
-    get args(): string[] | null {
+    get args(): any[] | null {
         return this._fields.args;
     }
 
