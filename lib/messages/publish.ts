@@ -12,7 +12,7 @@ import {
 interface IPublishFields {
     readonly requestID: number;
     readonly uri: string;
-    readonly args: string[] | null;
+    readonly args: any[] | null;
     readonly kwargs: { [key: string]: any } | null;
     readonly options: { [key: string]: any };
     readonly binaryPayload: BinaryPayload;
@@ -23,7 +23,7 @@ class PublishFields implements IPublishFields {
     constructor (
         private readonly _requestID: number,
         private readonly _uri: string,
-        private readonly _args: string[] | null = null,
+        private readonly _args: any[] | null = null,
         private readonly _kwargs: { [key: string]: any } | null = null,
         options: { [key: string]: any } | null = null,
         ) {
@@ -38,7 +38,7 @@ class PublishFields implements IPublishFields {
         return this._uri;
     }
 
-    get args(): string[] | null {
+    get args(): any[] | null {
         return this._args;
     }
 
@@ -94,7 +94,7 @@ class Publish implements Message {
         return this._fields.uri;
     }
 
-    get args(): string[] | null {
+    get args(): any[] | null {
         return this._fields.args;
     }
 

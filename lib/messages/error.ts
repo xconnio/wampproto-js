@@ -14,7 +14,7 @@ interface IErrorFields {
     readonly messageType: number;
     readonly requestID: number;
     readonly uri: string;
-    readonly args: string[];
+    readonly args: any[];
     readonly kwargs: { [key: string]: any }
     readonly details: { [key: string]: any };
     readonly binaryPayload: BinaryPayload;
@@ -26,7 +26,7 @@ class ErrorFields implements IErrorFields {
         private readonly _messageType: number,
         private readonly _requestID: number,
         private readonly _uri: string,
-        private readonly _args: string[] | null = null,
+        private readonly _args: any[] | null = null,
         private readonly _kwargs: { [key: string]: any } | null = null,
         details: { [key: string]: any } | null = null,
         ) {
@@ -45,7 +45,7 @@ class ErrorFields implements IErrorFields {
         return this._uri;
     }
 
-    get args(): string[] {
+    get args(): any[] {
         return this._args;
     }
 
@@ -106,7 +106,7 @@ class Error implements Message {
         return this._fields.uri;
     }
 
-    get args(): string[] {
+    get args(): any[] {
         return this._fields.args;
     }
 

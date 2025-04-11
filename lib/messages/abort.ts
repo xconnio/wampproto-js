@@ -5,7 +5,7 @@ import {validateArgs, validateDetails, validateKwArgs, validateMessage, validate
 interface IAbortFields {
     readonly details: { [key: string]: any };
     readonly reason: string;
-    readonly args: string[] | null;
+    readonly args: any[] | null;
     readonly kwargs: { [key: string]: any } | null;
 }
 
@@ -13,7 +13,7 @@ class AbortFields implements IAbortFields {
     constructor (
         private readonly _details: { [key: string]: any },
         private readonly _reason: string,
-        private readonly _args: string[] | null = null,
+        private readonly _args: any[] | null = null,
         private readonly _kwargs: { [key: string]: any } | null = null,
         ) {}
 
@@ -25,7 +25,7 @@ class AbortFields implements IAbortFields {
         return this._reason;
     }
 
-    get args(): string[] | null {
+    get args(): any[] | null {
         return this._args;
     }
 
@@ -55,7 +55,7 @@ class Abort implements Message {
         return this._fields.reason;
     }
 
-    get args(): string[] | null {
+    get args(): any[] | null {
         return this._fields.args;
     }
 

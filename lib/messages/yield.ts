@@ -11,7 +11,7 @@ import {
 interface IYieldFields {
     readonly requestID: number;
     readonly options: { [key: string]: any };
-    readonly args: string[] | null;
+    readonly args: any[] | null;
     readonly kwargs: { [key: string]: any } | null
     readonly binaryPayload: BinaryPayload;
 }
@@ -20,7 +20,7 @@ class YieldFields implements IYieldFields {
     private readonly _options: { [key: string]: any }
     constructor (
         private readonly _requestID: number,
-        private readonly _args: string[] | null = null,
+        private readonly _args: any[] | null = null,
         private readonly _kwargs: { [key: string]: any } | null = null,
         options: { [key: string]: any } | null = null,
 
@@ -38,7 +38,7 @@ class YieldFields implements IYieldFields {
         return this._options;
     }
 
-    get args(): string[] | null {
+    get args(): any[] | null {
         return this._args;
     }
     get kwargs(): { [key: string]: any } | null {
@@ -88,7 +88,7 @@ class Yield implements Message {
         return this._fields.options;
     }
 
-    get args(): string[] | null {
+    get args(): any[] | null {
         return this._fields.args;
     }
 

@@ -12,7 +12,7 @@ import {
 interface IEventFields {
     readonly subscriptionID: number;
     readonly publicationID: number;
-    readonly args: string[] | null;
+    readonly args: any[] | null;
     readonly kwargs: { [key: string]: any } | null;
     readonly details: { [key: string]: any };
     readonly binaryPayload: BinaryPayload;
@@ -23,7 +23,7 @@ class EventFields implements IEventFields {
     constructor (
         private readonly _subscriptionID: number,
         private readonly _publicationID: number,
-        private readonly _args: string[] | null = null,
+        private readonly _args: any[] | null = null,
         private readonly _kwargs: { [key: string]: any } | null = null,
         details: { [key: string]: any } | null = null,
         ) {
@@ -38,7 +38,7 @@ class EventFields implements IEventFields {
         return this._publicationID;
     }
 
-    get args(): string[] | null {
+    get args(): any[] | null {
         return this._args;
     }
 
@@ -94,7 +94,7 @@ class Event implements Message {
         return this._fields.publicationID;
     }
 
-    get args(): string[] | null {
+    get args(): any[] | null {
         return this._fields.args;
     }
 
