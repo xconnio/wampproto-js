@@ -18,6 +18,7 @@ import {Subscribed} from "./messages/subscribed";
 import {Unsubscribed} from "./messages/unsubscribed";
 import {Event} from "./messages/event";
 import {Goodbye} from "./messages/goodbye";
+import {Abort} from "./messages/abort";
 
 export class WAMPSession {
     // data structures for RPC
@@ -181,6 +182,10 @@ export class WAMPSession {
                 }
 
                 case Goodbye.TYPE: {
+                    return msg;
+                }
+
+                case Abort.TYPE: {
                     return msg;
                 }
 
