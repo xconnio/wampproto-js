@@ -22,14 +22,14 @@ export class WAMPSession {
     // data structures for RPC
     private _callRequests: Set<number> = new Set();
     private _registerRequests: Set<number> = new Set();
-    private _registrations: { [key: number]: number } = {};
+    private _registrations: Set<number> = new Set();
     private _invocationRequests: Set<number> = new Set();
     private _unregisterRequests: { [key: number]: number } = {};
 
     // data structures for PubSub
     private _publishRequests: Set<number> = new Set();
     private _subscribeRequests: Set<number> = new Set();
-    private _subscriptions: { [key: number]: number } = {};
+    private _subscriptions: Set<number> = new Set();
     private _unsubscribeRequests: { [key: number]: number } = {};
 
     constructor(private readonly _serializer: Serializer = new JSONSerializer()) {}
@@ -84,7 +84,7 @@ export class WAMPSession {
                 throw Error(`received ${Registered.TEXT} for invalid request ID`);
             }
 
-            this._registrations[msg.registrationID] = msg.registrationID;
+            this._registrations.add(msg.registrationID);
         } else if (msg instanceof Unregistered) {
             const registrationID: number = this._unregisterRequests[msg.requestID];
             if (registrationID === undefined) {
@@ -92,13 +92,12 @@ export class WAMPSession {
             }
             delete this._unregisterRequests[msg.requestID];
 
-            try {
-                delete this._registrations[registrationID];
-            } catch (e) {
+            const isDeleted = this._registrations.delete(registrationID);
+            if (!isDeleted) {
                 throw Error(`received ${Unregistered.TEXT} for invalid registration ID`);
             }
         } else if (msg instanceof Invocation) {
-            if (!(msg.registrationID in this._registrations)) {
+            if (!(this._registrations.has(msg.registrationID))){
                 throw Error(`received ${Invocation.TEXT} for invalid registration ID`);
             }
 
@@ -113,7 +112,7 @@ export class WAMPSession {
             if (!isDeleted) {
                 throw Error(`received ${Subscribed.TEXT} for invalid request ID`);
             }
-            this._subscriptions[msg.subscriptionID] = msg.subscriptionID;
+            this._subscriptions.add(msg.subscriptionID);
         } else if (msg instanceof Unsubscribed) {
             const subscriptionID: number = this._unsubscribeRequests[msg.requestID];
             if (subscriptionID === undefined) {
@@ -121,13 +120,12 @@ export class WAMPSession {
             }
             delete this._unsubscribeRequests[msg.requestID];
 
-            try {
-                delete this._subscriptions[subscriptionID];
-            } catch (e) {
+            const isCallDeleted = this._subscriptions.delete(subscriptionID);
+            if (!isCallDeleted) {
                 throw Error(`received ${Unsubscribed.TEXT} for invalid subscription ID`);
             }
         } else if (msg instanceof Event) {
-            if (!(msg.subscriptionID in this._subscriptions)) {
+            if (!(this._subscriptions.has(msg.subscriptionID))) {
                 throw Error(`received ${Event.TEXT} for invalid subscription ID`);
             }
         } else if (msg instanceof Error_) {
