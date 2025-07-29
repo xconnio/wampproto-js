@@ -20,15 +20,15 @@ import {Event} from "./messages/event";
 
 export class WAMPSession {
     // data structures for RPC
-    private _callRequests: { [key: number]: number } = {};
-    private _registerRequests: { [key: number]: number } = {};
+    private _callRequests: Set<number> = new Set();
+    private _registerRequests: Set<number> = new Set();
     private _registrations: { [key: number]: number } = {};
-    private _invocationRequests: { [key: number]: number } = {};
+    private _invocationRequests: Set<number> = new Set();
     private _unregisterRequests: { [key: number]: number } = {};
 
     // data structures for PubSub
-    private _publishRequests: { [key: number]: number } = {};
-    private _subscribeRequests: { [key: number]: number } = {};
+    private _publishRequests: Set<number> = new Set();
+    private _subscribeRequests: Set<number> = new Set();
     private _subscriptions: { [key: number]: number } = {};
     private _unsubscribeRequests: { [key: number]: number } = {};
 
@@ -36,23 +36,22 @@ export class WAMPSession {
 
     sendMessage(msg: Message): string | Uint8Array {
         if (msg instanceof Call) {
-            this._callRequests[msg.requestID] = msg.requestID;
+            this._callRequests.add(msg.requestID);
         } else if (msg instanceof Register) {
-            this._registerRequests[msg.requestID] = msg.requestID;
+            this._registerRequests.add(msg.requestID);
         } else if (msg instanceof Unregister) {
             this._unregisterRequests[msg.requestID] = msg.registrationID;
         } else if (msg instanceof Yield) {
-            if (!(msg.requestID in this._invocationRequests)) {
+            const isDeleted = this._invocationRequests.delete(msg.requestID);
+            if (!isDeleted) {
                 throw Error("cannot yield for unknown invocation request");
             }
-
-            delete this._invocationRequests[msg.requestID];
         } else if (msg instanceof Publish) {
             if (msg.options?.acknowledge ?? false) {
-                this._publishRequests[msg.requestID] = msg.requestID;
+                this._publishRequests.add(msg.requestID);
             }
         } else if (msg instanceof Subscribe) {
-            this._subscribeRequests[msg.requestID] = msg.requestID;
+            this._subscribeRequests.add(msg.requestID);
         } else if (msg instanceof Unsubscribe) {
             this._unsubscribeRequests[msg.requestID] = msg.subscriptionID;
         } else if (msg instanceof Error_) {
@@ -60,7 +59,7 @@ export class WAMPSession {
                 throw Error("send only supported for invocation error");
             }
 
-            delete this._invocationRequests[msg.requestID];
+            this._invocationRequests.delete(msg.requestID);
         } else {
             throw Error(`unknown message type ${typeof msg}`);
         }
@@ -75,15 +74,13 @@ export class WAMPSession {
 
     receiveMessage(msg: Message): Message {
         if (msg instanceof Result) {
-            try {
-                delete this._callRequests[msg.requestID];
-            } catch (e) {
+            const isDeleted = this._callRequests.delete(msg.requestID);
+            if (!isDeleted) {
                 throw Error(`received ${Result.TEXT} for invalid request ID`);
             }
         } else if (msg instanceof Registered) {
-            try {
-                delete this._registerRequests[msg.requestID];
-            } catch (e) {
+            const isDeleted = this._registerRequests.delete(msg.requestID);
+            if (!isDeleted) {
                 throw Error(`received ${Registered.TEXT} for invalid request ID`);
             }
 
@@ -105,17 +102,15 @@ export class WAMPSession {
                 throw Error(`received ${Invocation.TEXT} for invalid registration ID`);
             }
 
-            this._invocationRequests[msg.requestID] = msg.requestID;
+            this._invocationRequests.add(msg.requestID);
         } else if (msg instanceof Published) {
-            try {
-                delete this._publishRequests[msg.requestID];
-            } catch (e) {
+            const isDeleted = this._publishRequests.delete(msg.requestID);
+            if (!isDeleted) {
                 throw Error(`received ${Published.TEXT} for invalid registration ID`);
             }
         } else if (msg instanceof Subscribed) {
-            try {
-                delete this._subscribeRequests[msg.requestID];
-            } catch (e) {
+            const isDeleted = this._subscribeRequests.delete(msg.requestID);
+            if (!isDeleted) {
                 throw Error(`received ${Subscribed.TEXT} for invalid request ID`);
             }
             this._subscriptions[msg.subscriptionID] = msg.subscriptionID;
@@ -137,52 +132,54 @@ export class WAMPSession {
             }
         } else if (msg instanceof Error_) {
             switch (msg.messageType) {
-                case Call.TYPE:
-                    if (!(msg.requestID in this._callRequests)) {
+                case Call.TYPE: {
+                    const isCallDeleted = this._callRequests.delete(msg.requestID);
+                    if (!isCallDeleted) {
                         throw Error(`received ${Error_.TEXT} for invalid call request`);
                     }
-
-                    delete this._callRequests[msg.requestID];
                     break;
-                case Register.TYPE:
-                    if (!(msg.requestID in this._registerRequests)) {
+                }
+                case Register.TYPE: {
+                    const isRegDeleted = this._registerRequests.delete(msg.requestID);
+                    if (!isRegDeleted) {
                         throw Error(`received ${Error_.TEXT} for invalid register request`);
                     }
-
-                    delete this._registerRequests[msg.requestID];
                     break;
+                }
 
-                case Unregister.TYPE:
+                case Unregister.TYPE: {
                     if (!(msg.requestID in this._unregisterRequests)) {
                         throw Error(`received ${Error_.TEXT} for invalid unregister request`);
                     }
 
                     delete this._unregisterRequests[msg.requestID];
                     break;
+                }
 
-                case Subscribe.TYPE:
-                    if (!(msg.requestID in this._subscribeRequests)) {
+                case Subscribe.TYPE: {
+                    const isSubDeleted = this._subscribeRequests.delete(msg.requestID);
+                    if (!isSubDeleted) {
                         throw Error(`received ${Error_.TEXT} for invalid subscribe request`);
                     }
-
-                    delete this._subscribeRequests[msg.requestID];
                     break;
+                }
 
-                case Unsubscribe.TYPE:
+                case Unsubscribe.TYPE: {
                     if (!(msg.requestID in this._unsubscribeRequests)) {
                         throw Error(`received ${Error_.TEXT} for invalid unsubscribe request`);
                     }
 
                     delete this._unsubscribeRequests[msg.requestID];
                     break;
+                }
 
-                case Publish.TYPE:
-                    if (!(msg.requestID in this._publishRequests)) {
+                case Publish.TYPE: {
+                    const isPubDeleted = this._publishRequests.delete(msg.requestID);
+                    if (!isPubDeleted) {
                         throw Error(`received ${Error_.TEXT} for invalid publish request`);
                     }
-
-                    delete this._publishRequests[msg.requestID];
                     break;
+                }
 
                 default:
                     throw Error(`unknown error message type ${typeof msg}`)
