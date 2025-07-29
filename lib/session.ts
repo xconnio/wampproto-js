@@ -17,6 +17,7 @@ import {Published} from "./messages/published";
 import {Subscribed} from "./messages/subscribed";
 import {Unsubscribed} from "./messages/unsubscribed";
 import {Event} from "./messages/event";
+import {Goodbye} from "./messages/goodbye";
 
 export class WAMPSession {
     // data structures for RPC
@@ -177,6 +178,10 @@ export class WAMPSession {
                         throw Error(`received ${Error_.TEXT} for invalid publish request`);
                     }
                     break;
+                }
+
+                case Goodbye.TYPE: {
+                    return msg;
                 }
 
                 default:
