@@ -9,7 +9,7 @@ export class TicketAuthenticator implements ClientAuthenticator {
     _authID: string;
     _ticket: string;
 
-    constructor(authID: string, authExtra: object, ticket: string) {
+    constructor(authID: string, ticket: string, authExtra: object) {
         this._authID = authID;
         this._authExtra = authExtra;
         this._ticket = ticket;
