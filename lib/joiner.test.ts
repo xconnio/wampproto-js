@@ -47,7 +47,7 @@ describe("Joiner", () => {
     });
 
     test("receiveChallengeMessage", () => {
-        const authenticator = new TicketAuthenticator(testAuthID, {}, "test");
+        const authenticator = new TicketAuthenticator(testAuthID, "test", {});
         const joiner = new Joiner(testRealm, new JSONSerializer(), authenticator);
         joiner.sendHello();
 

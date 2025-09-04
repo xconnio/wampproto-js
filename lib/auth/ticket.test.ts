@@ -5,7 +5,7 @@ describe("Ticket Authenticator", () => {
     const testAuthID = "foo";
     const ticket = "ticket";
 
-    const authenticator = new TicketAuthenticator(testAuthID, null, ticket);
+    const authenticator = new TicketAuthenticator(testAuthID, ticket, null);
 
     it("constructor", () => {
         expect(authenticator.authID).toEqual(testAuthID);
