@@ -6,7 +6,9 @@
         "rootDir": "./lib",
         "declaration": true,
         "declarationDir": "types",
-        "moduleResolution": "node"
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true
     },
     "include": [
         "lib/**/*",
