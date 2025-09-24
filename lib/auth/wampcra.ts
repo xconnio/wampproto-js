@@ -1,4 +1,8 @@
-import {createHmac, randomBytes, timingSafeEqual, pbkdf2Sync} from 'crypto';
+import { hmac } from '@noble/hashes/hmac';
+import { sha256 } from '@noble/hashes/sha256';
+import { utf8ToBytes } from '@noble/hashes/utils';
+import { pbkdf2Sync } from 'pbkdf2';
+import {Buffer} from "buffer";
 
 import {Authenticate, AuthenticateFields} from "../messages/authenticate";
 import {Challenge} from "../messages/challenge";
@@ -68,9 +72,24 @@ function deriveCRAKey(saltStr: string, secret: string, iterations: number, keyLe
     return Buffer.from(base64Encoded, 'utf-8');
 }
 
+export function generateNonce(): string {
+    const isBrowser = typeof window !== 'undefined' && !!window.crypto?.getRandomValues;
+
+    if (isBrowser) {
+        const bytes = new Uint8Array(16);
+        crypto.getRandomValues(bytes);
+        return Array.from(bytes)
+            .map((b) => b.toString(16).padStart(2, '0'))
+            .join('');
+    } else {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const { randomBytes } = require('crypto');
+        return randomBytes(16).toString('hex');
+    }
+}
 
 export function generateWAMPCRAChallenge(sessionID: number, authid: string, authrole: string, provider: string): string {
-    const nonce = randomBytes(16).toString('hex');
+    const nonce = generateNonce();
 
     const data = {
         nonce: nonce,
@@ -85,10 +104,19 @@ export function generateWAMPCRAChallenge(sessionID: number, authid: string, auth
     return JSON.stringify(data);
 }
 
-export function signWAMPCRAChallenge(challenge: string, key: Buffer): string {
-    const hmac = createHmac('sha256', key);
-    hmac.update(challenge);
-    return hmac.digest('base64');
+export function signWAMPCRAChallenge(challenge: string, key: Uint8Array): string {
+    const result = hmac(sha256, key, utf8ToBytes(challenge));
+    return Buffer.from(result).toString('base64');
+}
+
+function timingSafeEqual(a: Buffer, b: Buffer): boolean {
+    if (a.length !== b.length) return false;
+
+    let result = 0;
+    for (let i = 0; i < a.length; i++) {
+        result |= a[i] ^ b[i];
+    }
+    return result === 0;
 }
 
 export function verifyWAMPCRASignature(signature: string, challenge: string, key: Buffer): boolean {
