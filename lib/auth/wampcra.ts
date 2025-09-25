@@ -1,7 +1,8 @@
-import { hmac } from '@noble/hashes/hmac';
-import { sha256 } from '@noble/hashes/sha256';
-import { utf8ToBytes } from '@noble/hashes/utils';
-import { pbkdf2Sync } from 'pbkdf2';
+import HmacSHA256 from "crypto-js/hmac-sha256";
+import EncUtf8 from "crypto-js/enc-utf8";
+import EncBase64 from "crypto-js/enc-base64";
+import PBKDF2 from 'crypto-js/pbkdf2';
+import CryptoJS from 'crypto-js';
 import {Buffer} from "buffer";
 
 import {Authenticate, AuthenticateFields} from "../messages/authenticate";
@@ -62,14 +63,17 @@ export class WAMPCRAAuthenticator implements ClientAuthenticator {
 }
 
 function deriveCRAKey(saltStr: string, secret: string, iterations: number, keyLength: number): Buffer {
-    const salt = Buffer.from(saltStr, 'utf-8');
-
     const effectiveIterations = iterations === 0 ? WAMPCRAAuthenticator.DEFAULT_ITERATIONS : iterations;
     const effectiveKeyLength = keyLength === 0 ? WAMPCRAAuthenticator.DEFAULT_KEY_LENGTH : keyLength
 
-    const key = pbkdf2Sync(secret, salt, effectiveIterations, effectiveKeyLength, 'sha256');
+    const key = deriveKeyPBKDF2(secret, saltStr, effectiveIterations, effectiveKeyLength);
     const base64Encoded = Buffer.from(key).toString('base64');
     return Buffer.from(base64Encoded, 'utf-8');
+}
+
+function deriveKeyPBKDF2(secret: string, salt: string, iterations: number, keyLen: number): Uint8Array {
+    const derived = PBKDF2(secret, salt, {keySize: keyLen / 4, iterations, hasher: CryptoJS.algo.SHA256});
+    return Uint8Array.from(Buffer.from(derived.toString(), 'hex'));
 }
 
 export function generateNonce(): string {
@@ -105,8 +109,9 @@ export function generateWAMPCRAChallenge(sessionID: number, authid: string, auth
 }
 
 export function signWAMPCRAChallenge(challenge: string, key: Uint8Array): string {
-    const result = hmac(sha256, key, utf8ToBytes(challenge));
-    return Buffer.from(result).toString('base64');
+    const keyStr = EncUtf8.stringify(EncUtf8.parse(new TextDecoder().decode(key)));
+    const hash = HmacSHA256(challenge, keyStr);
+    return EncBase64.stringify(hash);
 }
 
 function timingSafeEqual(a: Buffer, b: Buffer): boolean {
