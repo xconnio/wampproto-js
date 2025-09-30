@@ -13,9 +13,9 @@ describe("Ticket Authenticator", () => {
         expect(authenticator.authExtra).toBeNull();
     });
 
-    it("authenticate", () => {
+    it("authenticate", async () => {
         const challenge = new Challenge(new ChallengeFields("ticket", null));
-        const authenticate = authenticator.authenticate(challenge);
+        const authenticate = await authenticator.authenticate(challenge);
         expect(authenticate.signature).toEqual(ticket);
     });
 });

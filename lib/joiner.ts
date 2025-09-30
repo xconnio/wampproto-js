@@ -49,9 +49,9 @@ export class Joiner {
         return this._serializer.serialize(hello);
     }
 
-    receive(data: string | Uint8Array) {
+    async receive(data: string | Uint8Array) {
         const receivedMessage: Message = this._serializer.deserialize(data)
-        const toSend: Message = this.receiveMessage(receivedMessage);
+        const toSend: Message = await this.receiveMessage(receivedMessage);
         if (toSend !== null && toSend instanceof Authenticate) {
             return this._serializer.serialize(toSend);
         }
@@ -59,7 +59,7 @@ export class Joiner {
         return null;
     }
 
-    receiveMessage(msg: Message): Message | null {
+    async receiveMessage(msg: Message): Promise<Message | null> {
         if (msg instanceof Welcome) {
             if (this._state !== Joiner.stateHelloSent && this._state !== Joiner.stateAuthenticateSent) {
                 throw Error("received welcome when it was not expected")
@@ -73,7 +73,7 @@ export class Joiner {
                 throw Error("received challenge when it was not expected");
             }
 
-            const authenticate = this._authenticator.authenticate(msg);
+            const authenticate = await this._authenticator.authenticate(msg);
             this._state = Joiner.stateAuthenticateSent;
             return authenticate;
         } else if (msg instanceof Abort) {

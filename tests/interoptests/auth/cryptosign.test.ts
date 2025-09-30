@@ -21,7 +21,7 @@ describe('Cryptosign Tests', function () {
     it('Sign CryptoSign Challenge', async function() {
         const challenge: string = await runCommand('wampproto auth cryptosign generate-challenge');
 
-        const signature: string = cryptoSignAuth.signCryptoSignChallenge(challenge.trim(), TEST_PRIVATE_KEY);
+        const signature: string = await cryptoSignAuth.signCryptoSignChallenge(challenge.trim(), TEST_PRIVATE_KEY);
 
         await runCommand(
             `wampproto auth cryptosign verify-signature ${signature} ${TEST_PUBLIC_KEY}`
@@ -35,7 +35,7 @@ describe('Cryptosign Tests', function () {
             `wampproto auth cryptosign sign-challenge ${challenge.trim()} ${TEST_PRIVATE_KEY}`
         );
 
-        const isVerified: boolean = cryptoSignAuth.verifyCryptoSignSignature(
+        const isVerified: boolean = await cryptoSignAuth.verifyCryptoSignSignature(
             signature.trim(), cryptoSignAuth.hexToUint8Array(TEST_PUBLIC_KEY)
         );
 

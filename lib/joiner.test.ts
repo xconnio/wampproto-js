@@ -29,14 +29,14 @@ describe("Joiner", () => {
         expect(hello.roles).toEqual(clientRoles);
     });
 
-    test("receiveWelcomeMessage", () => {
+    test("receiveWelcomeMessage", async () => {
         const joiner = new Joiner(testRealm);
         joiner.sendHello();
 
         const welcome = new Welcome(new WelcomeFields(testSessionID, clientRoles, testAuthID, testAuthRole, testAuthMethod));
         const serialized = new JSONSerializer().serialize(welcome);
 
-        const result = joiner.receive(serialized);
+        const result = await joiner.receive(serialized);
         expect(result).toBeNull();
 
         const session = joiner.getSessionDetails();
@@ -46,7 +46,7 @@ describe("Joiner", () => {
         expect(session.authrole).toEqual(testAuthRole);
     });
 
-    test("receiveChallengeMessage", () => {
+    test("receiveChallengeMessage", async () => {
         const authenticator = new TicketAuthenticator(testAuthID, "test", {});
         const joiner = new Joiner(testRealm, new JSONSerializer(), authenticator);
         joiner.sendHello();
@@ -54,7 +54,7 @@ describe("Joiner", () => {
         const challenge = new Challenge(new ChallengeFields("ticket", {challenge: "123456"}));
         const serializedChallenge = new JSONSerializer().serialize(challenge);
 
-        const result = joiner.receive(serializedChallenge);
+        const result = await joiner.receive(serializedChallenge);
         expect(result).not.toBeNull();
 
         const deserializedResult = new JSONSerializer().deserialize(result! as string);
@@ -64,7 +64,7 @@ describe("Joiner", () => {
 
         const welcome = new Welcome(new WelcomeFields(testSessionID, clientRoles, testAuthID, testAuthRole, testAuthMethod));
         const serializedWelcome = new JSONSerializer().serialize(welcome);
-        const finalResult = joiner.receive(serializedWelcome);
+        const finalResult = await joiner.receive(serializedWelcome);
         expect(finalResult).toBeNull();
 
         const session = joiner.getSessionDetails();
@@ -74,13 +74,13 @@ describe("Joiner", () => {
         expect(session.authrole).toEqual(testAuthRole);
     });
 
-    test("receiveAbortMessage", () => {
+    test("receiveAbortMessage", async () => {
         const joiner = new Joiner(testRealm);
         joiner.sendHello();
 
         const abort = new Abort(new AbortFields({}, "some.reason"));
         const serialized = new JSONSerializer().serialize(abort);
 
-        expect(() => joiner.receive(serialized)).toThrow(ApplicationError);
+        await expect(joiner.receive(serialized)).rejects.toThrow(ApplicationError);
     });
 });
