@@ -19,6 +19,8 @@
   "author": "Omer Akram <omer@thing.com>",
   "license": "MIT",
   "dependencies": {
+    "@noble/ed25519": "^3.0.0",
+    "@noble/hashes": "^2.0.1",
     "buffer": "^6.0.3",
     "cbor-x": "^1.5.9",
     "msgpackr": "^1.10.2",

@@ -1,7 +1,6 @@
 import {
     CryptoSignAuthenticator,
-    generateCryptoSignChallenge,
-    hexToUint8Array,
+    generateCryptoSignChallenge, hexToUint8Array,
     signCryptoSignChallenge,
     verifyCryptoSignSignature
 } from "./cryptosign";
@@ -36,13 +35,13 @@ describe("CryptoSign Authenticator", (): void => {
         expect(challenge.length).toEqual(64)
     });
 
-    it("signCryptoSignChallenge", (): void => {
-        const signed: string = signCryptoSignChallenge(challenge, privateKeyHex)
+    it("signCryptoSignChallenge", async (): Promise<void> => {
+        const signed: string = await signCryptoSignChallenge(challenge, privateKeyHex)
         expect(signed).toEqual(signature + challenge)
     });
 
-    it("verifyCryptoSignSignature", (): void => {
-        const isValid: boolean = verifyCryptoSignSignature(signature + challenge, hexToUint8Array(publicKeyHex))
+    it("verifyCryptoSignSignature", async (): Promise<void> => {
+        const isValid: boolean = await verifyCryptoSignSignature(signature + challenge, hexToUint8Array(publicKeyHex))
         expect(isValid).toBeTruthy()
     });
 });
