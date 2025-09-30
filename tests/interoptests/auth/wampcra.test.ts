@@ -40,7 +40,7 @@ describe("WAMP CRA Tests", function () {
             `wampproto auth cra generate-challenge ${SESSION_ID} ${AUTH_ID} ${AUTH_ROLE} ${PROVIDER}`
         );
 
-        const signature: string = wampCRAAuth.signWAMPCRAChallenge(challenge.trim(), Buffer.from(TEST_SECRET));
+        const signature: string = await wampCRAAuth.signWAMPCRAChallenge(challenge.trim(), Buffer.from(TEST_SECRET));
 
         await runCommand(
             `wampproto auth cra verify-signature '${challenge.trim()}' ${signature.trim()} ${TEST_SECRET}`
@@ -56,7 +56,7 @@ describe("WAMP CRA Tests", function () {
             `wampproto auth cra sign-challenge '${challenge.trim()}' ${TEST_SECRET}`
         );
 
-        const isVerified: boolean = wampCRAAuth.verifyWAMPCRASignature(
+        const isVerified: boolean = await wampCRAAuth.verifyWAMPCRASignature(
             signature.trim(),
             challenge.trim(),
             Buffer.from(TEST_SECRET)
@@ -84,6 +84,7 @@ describe("WAMP CRA Tests", function () {
             `wampproto auth cra generate-challenge ${SESSION_ID} ${AUTH_ID} ${AUTH_ROLE} ${PROVIDER}`
         );
 
+
         const saltSecret = await runCommand(
             `wampproto auth cra derive-key ${SALT} ${TEST_SECRET} -i ${ITERATIONS} -l ${KEY_LENGTH}`
         );
@@ -92,7 +93,7 @@ describe("WAMP CRA Tests", function () {
             `wampproto auth cra sign-challenge '${challenge.trim()}' ${saltSecret.trim()}`
         );
 
-        const isVerified: boolean = wampCRAAuth.verifyWAMPCRASignature(
+        const isVerified: boolean = await wampCRAAuth.verifyWAMPCRASignature(
             signature.trim(),
             challenge.trim(),
             Buffer.from(saltSecret.trim())

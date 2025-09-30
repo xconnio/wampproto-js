@@ -1,12 +1,14 @@
-import { hmac } from '@noble/hashes/hmac';
-import { sha256 } from '@noble/hashes/sha256';
-import { utf8ToBytes } from '@noble/hashes/utils';
-import { pbkdf2Sync } from 'pbkdf2';
 import {Buffer} from "buffer";
+import {webcrypto} from "crypto";
 
 import {Authenticate, AuthenticateFields} from "../messages/authenticate";
 import {Challenge} from "../messages/challenge";
 import {ClientAuthenticator} from "./authenticator";
+
+export const cryptoObj: Crypto = (globalThis.crypto ?? webcrypto) as Crypto;
+
+const encoder = new TextEncoder();
+
 
 export class WAMPCRAAuthenticator implements ClientAuthenticator {
     static TYPE = "wampcra"
@@ -38,10 +40,10 @@ export class WAMPCRAAuthenticator implements ClientAuthenticator {
         }
 
         const salt = challenge.extra["salt"];
-        let rawSecret: Buffer;
+        let rawSecret: Uint8Array;
 
         if (!salt) {
-            rawSecret = Buffer.from(this._secret, "utf-8");
+            rawSecret = encoder.encode(this._secret);
         } else {
             const iterations = challenge.extra["iterations"];
             if (typeof iterations !== "number") {
@@ -53,43 +55,46 @@ export class WAMPCRAAuthenticator implements ClientAuthenticator {
                 throw new Error("Key length missing in extra");
             }
 
-            rawSecret = deriveCRAKey(salt, this._secret, iterations, keylen);
+            rawSecret = await deriveCRAKey(salt, this._secret, iterations, keylen);
         }
 
-        const signed = signWAMPCRAChallenge(challengeHex, rawSecret);
+        const signed = await signWAMPCRAChallenge(challengeHex, rawSecret);
         return new Authenticate(new AuthenticateFields(signed, {}));
     }
 }
 
-function deriveCRAKey(saltStr: string, secret: string, iterations: number, keyLength: number): Buffer {
-    const salt = Buffer.from(saltStr, 'utf-8');
-
+async function deriveCRAKey(saltStr: string, secret: string, iterations: number, keyLength: number): Promise<Uint8Array> {
     const effectiveIterations = iterations === 0 ? WAMPCRAAuthenticator.DEFAULT_ITERATIONS : iterations;
-    const effectiveKeyLength = keyLength === 0 ? WAMPCRAAuthenticator.DEFAULT_KEY_LENGTH : keyLength
+    const effectiveKeyLength = keyLength === 0 ? WAMPCRAAuthenticator.DEFAULT_KEY_LENGTH : keyLength;
 
-    const key = pbkdf2Sync(secret, salt, effectiveIterations, effectiveKeyLength, 'sha256');
-    const base64Encoded = Buffer.from(key).toString('base64');
-    return Buffer.from(base64Encoded, 'utf-8');
-}
+    const salt = encoder.encode(saltStr);
 
-export function generateNonce(): string {
-    const isBrowser = typeof window !== 'undefined' && !!window.crypto?.getRandomValues;
+    const baseKey = await cryptoObj.subtle.importKey(
+        "raw",
+        encoder.encode(secret),
+        {name: "PBKDF2"},
+        false,
+        ["deriveBits"]
+    );
 
-    if (isBrowser) {
-        const bytes = new Uint8Array(16);
-        crypto.getRandomValues(bytes);
-        return Array.from(bytes)
-            .map((b) => b.toString(16).padStart(2, '0'))
-            .join('');
-    } else {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const { randomBytes } = require('crypto');
-        return randomBytes(16).toString('hex');
-    }
+    const bits = await cryptoObj.subtle.deriveBits(
+        {
+            name: "PBKDF2",
+            salt,
+            iterations: effectiveIterations,
+            hash: "SHA-256",
+        },
+        baseKey,
+        effectiveKeyLength * 8
+    );
+
+    const base64String = Buffer.from(bits).toString("base64");
+
+    return encoder.encode(base64String);
 }
 
 export function generateWAMPCRAChallenge(sessionID: number, authid: string, authrole: string, provider: string): string {
-    const nonce = generateNonce();
+    const nonce = cryptoObj.getRandomValues(new Uint8Array(32)).toString();
 
     const data = {
         nonce: nonce,
@@ -104,9 +109,21 @@ export function generateWAMPCRAChallenge(sessionID: number, authid: string, auth
     return JSON.stringify(data);
 }
 
-export function signWAMPCRAChallenge(challenge: string, key: Uint8Array): string {
-    const result = hmac(sha256, key, utf8ToBytes(challenge));
-    return Buffer.from(result).toString('base64');
+export async function generateHMAC(keyBytes: Uint8Array, msgBytes: Uint8Array): Promise<string> {
+    const key = await cryptoObj.subtle.importKey(
+        "raw",
+        keyBytes as BufferSource,
+        {name: "HMAC", hash: {name: "SHA-256"}},
+        false,
+        ["sign"]
+    );
+
+    const signature = await cryptoObj.subtle.sign("HMAC", key, msgBytes as BufferSource);
+    return Buffer.from(signature).toString("base64");
+}
+
+export async function signWAMPCRAChallenge(challenge: string, key: Uint8Array): Promise<string> {
+    return await generateHMAC(key, encoder.encode(challenge))
 }
 
 function timingSafeEqual(a: Buffer, b: Buffer): boolean {
@@ -119,9 +136,9 @@ function timingSafeEqual(a: Buffer, b: Buffer): boolean {
     return result === 0;
 }
 
-export function verifyWAMPCRASignature(signature: string, challenge: string, key: Buffer): boolean {
+export async function verifyWAMPCRASignature(signature: string, challenge: string, key: Buffer): Promise<boolean> {
     const signatureBytes = Buffer.from(signature, 'base64');
-    const localSignature = signWAMPCRAChallenge(challenge, key);
+    const localSignature = await signWAMPCRAChallenge(challenge, key);
     const localSigBytes = Buffer.from(localSignature, 'base64');
     return timingSafeEqual(signatureBytes, localSigBytes);
 }

@@ -1,6 +1,5 @@
-import {WAMPCRAAuthenticator, generateWAMPCRAChallenge, signWAMPCRAChallenge, verifyWAMPCRASignature} from './wampcra';
+import {WAMPCRAAuthenticator, generateWAMPCRAChallenge, signWAMPCRAChallenge, verifyWAMPCRASignature, generateHMAC} from './wampcra';
 import {Challenge, ChallengeFields} from '../messages/challenge';
-import {createHmac} from 'crypto';
 
 const testAuthID = "authid";
 const testSecret = "secret";
@@ -31,7 +30,7 @@ describe("WAMPCRA Authenticator", () => {
         const challenge = new Challenge(new ChallengeFields(WAMPCRAAuthenticator.TYPE, challengeData));
 
         const authenticate = await authenticator.authenticate(challenge);
-        const signed = signWAMPCRAChallenge(testCRAChallenge, Buffer.from(testSecret, 'utf-8'));
+        const signed = await signWAMPCRAChallenge(testCRAChallenge, Buffer.from(testSecret, 'utf-8'));
 
         expect(authenticate.signature).toEqual(signed);
     });
@@ -59,20 +58,20 @@ describe("WAMPCRA Authenticator", () => {
 });
 
 describe("WAMPCRA utilities", () => {
-    it("signCRAChallenge", () => {
-        const signed = signWAMPCRAChallenge(testCRAChallenge, Buffer.from(testSecret, 'utf-8'));
-        const hmac = createHmac('sha256', Buffer.from(testSecret, 'utf-8'));
-        hmac.update(testCRAChallenge);
-        const expectedSig = hmac.digest('base64');
+    it("signCRAChallenge", async () => {
+        const key = new TextEncoder().encode(testSecret);
+        const signed = await signWAMPCRAChallenge(testCRAChallenge, key);
+
+        const expectedSig = await generateHMAC(key, new TextEncoder().encode(testCRAChallenge));
 
         expect(signed).toEqual(expectedSig);
     });
 
-    it("verifyWAMPCRASignature", () => {
+    it("verifyWAMPCRASignature", async () => {
         const key = Buffer.from(testSecret, 'utf-8');
-        const signature = signWAMPCRAChallenge(testCRAChallenge, key);
+        const signature = await signWAMPCRAChallenge(testCRAChallenge, key);
 
-        const valid = verifyWAMPCRASignature(signature, testCRAChallenge, key);
+        const valid = await verifyWAMPCRASignature(signature, testCRAChallenge, key);
         expect(valid).toEqual(true);
     });
 
