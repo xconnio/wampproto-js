@@ -1,6 +1,5 @@
 import * as ed from "@noble/ed25519";
 import {sha512} from "@noble/hashes/sha2.js";
-import {webcrypto} from "crypto";
 import {getPublicKey} from '@noble/ed25519';
 import {Buffer} from "buffer";
 
@@ -8,7 +7,7 @@ import {Authenticate, AuthenticateFields} from "../messages/authenticate";
 import {Challenge} from "../messages/challenge";
 import {ClientAuthenticator} from "./authenticator";
 
-export const cryptoObj: Crypto = (globalThis.crypto ?? webcrypto) as Crypto;
+import {cryptoObj} from "./utils";
 
 ed.hashes.sha512 = sha512;
 

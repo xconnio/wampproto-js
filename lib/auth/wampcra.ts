@@ -1,11 +1,9 @@
 import {Buffer} from "buffer";
-import {webcrypto} from "crypto";
 
 import {Authenticate, AuthenticateFields} from "../messages/authenticate";
 import {Challenge} from "../messages/challenge";
 import {ClientAuthenticator} from "./authenticator";
-
-export const cryptoObj: Crypto = (globalThis.crypto ?? webcrypto) as Crypto;
+import {cryptoObj} from "./utils";
 
 const encoder = new TextEncoder();
 
