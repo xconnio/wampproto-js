@@ -15,7 +15,7 @@ export class TicketAuthenticator implements ClientAuthenticator {
         this._ticket = ticket;
     }
 
-    authenticate(challenge: Challenge): Authenticate {
+    async authenticate(challenge: Challenge): Promise<Authenticate> {
         return new Authenticate(new AuthenticateFields(this._ticket))
     }
 

@@ -16,7 +16,7 @@ export class AnonymousAuthenticator implements ClientAuthenticator {
         this._authExtra = authExtra;
     }
 
-    authenticate(challenge: Challenge): Authenticate {
+    async authenticate(challenge: Challenge): Promise<Authenticate> {
         throw new Error("authenticate() must not be called for anonymous authentication");
     }
 

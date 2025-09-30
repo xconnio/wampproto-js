@@ -6,5 +6,5 @@ export interface ClientAuthenticator {
     get authMethod(): string
     get authID(): string
     get authExtra(): object
-    authenticate(challenge: Challenge): Authenticate
+    authenticate(challenge: Challenge): Promise<Authenticate>
 }

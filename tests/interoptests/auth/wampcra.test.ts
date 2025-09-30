@@ -68,7 +68,7 @@ describe("WAMP CRA Tests", function () {
     it('Sign WAMPCRA Signature With Salt', async function () {
         const challenge = new Challenge(new ChallengeFields(WAMPCRAAuthenticator.TYPE, AUTH_EXTRA));
         const authenticator = new WAMPCRAAuthenticator(AUTH_ID, TEST_SECRET, AUTH_EXTRA);
-        const authenticate = authenticator.authenticate(challenge);
+        const authenticate = await authenticator.authenticate(challenge);
 
         const saltSecret = await runCommand(
             `wampproto auth cra derive-key ${SALT} ${TEST_SECRET} -i ${ITERATIONS} -l ${KEY_LENGTH}`

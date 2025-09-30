@@ -26,8 +26,8 @@ describe("CryptoSign Authenticator", (): void => {
         expect(authenticator.authExtra).toEqual(authExtra)
     });
 
-    it("authenticate", (): void => {
-        const authenticate: Authenticate = authenticator.authenticate(new Challenge(new ChallengeFields(CryptoSignAuthenticator.TYPE, {"challenge": challenge})));
+    it("authenticate", async (): Promise<void> => {
+        const authenticate: Authenticate = await authenticator.authenticate(new Challenge(new ChallengeFields(CryptoSignAuthenticator.TYPE, {"challenge": challenge})));
         expect(authenticate.signature).toEqual(signature + challenge);
     });
 

@@ -26,35 +26,35 @@ describe("WAMPCRA Authenticator", () => {
         expect(authenticator.authExtra).toEqual(null);
     });
 
-    it("authenticate", () => {
+    it("authenticate", async () => {
         const challengeData = {challenge: testCRAChallenge};
         const challenge = new Challenge(new ChallengeFields(WAMPCRAAuthenticator.TYPE, challengeData));
 
-        const authenticate = authenticator.authenticate(challenge);
+        const authenticate = await authenticator.authenticate(challenge);
         const signed = signWAMPCRAChallenge(testCRAChallenge, Buffer.from(testSecret, 'utf-8'));
 
         expect(authenticate.signature).toEqual(signed);
     });
 
-    it("should throw if challenge string missing", () => {
+    it("should throw if challenge string missing", async () => {
         const challengeData = {salt: "somesalt", iterations: 1000, keylen: 256};
         const challenge = new Challenge(new ChallengeFields("wampcra", challengeData));
 
-        expect(() => authenticator.authenticate(challenge)).toThrow("Challenge string missing in extra");
+        await expect(authenticator.authenticate(challenge)).rejects.toThrow("Challenge string missing in extra");
     });
 
-    it("should throw if iterations missing", () => {
+    it("should throw if iterations missing", async () => {
         const challengeData = {challenge: testCRAChallenge, salt: "somesalt", keylen: 256};
         const challenge = new Challenge(new ChallengeFields("wampcra", challengeData));
 
-        expect(() => authenticator.authenticate(challenge)).toThrow("Iterations missing in extra");
+        await expect(authenticator.authenticate(challenge)).rejects.toThrow("Iterations missing in extra");
     });
 
-    it("should throw if keylen missing", () => {
+    it("should throw if keylen missing", async () => {
         const challengeData = {challenge: testCRAChallenge, salt: "somesalt", iterations: 1000};
         const challenge = new Challenge(new ChallengeFields("wampcra", challengeData));
 
-        expect(() => authenticator.authenticate(challenge)).toThrow("Key length missing in extra");
+        await expect(authenticator.authenticate(challenge)).rejects.toThrow("Key length missing in extra");
     });
 });
 

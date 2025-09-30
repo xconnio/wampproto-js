@@ -30,7 +30,7 @@ export class CryptoSignAuthenticator implements ClientAuthenticator {
         return this._authExtra;
     }
 
-    authenticate(challenge: Challenge): Authenticate {
+    async authenticate(challenge: Challenge): Promise<Authenticate> {
         if (!("challenge" in challenge.extra)) {
             throw new Error("challenge string missing in extra");
         }

@@ -12,9 +12,9 @@ describe("Anonymous Authenticator", () => {
         expect(authenticator.authExtra).toEqual({}); // AuthExtra should be an empty map
     });
 
-    it("authenticate", () => {
+    it("authenticate", async () => {
         const challenge = new Challenge(new ChallengeFields("anonymous", null));
-        expect(() => authenticator.authenticate(challenge)).toThrow(
+        await expect(authenticator.authenticate(challenge)).rejects.toThrow(
             "authenticate() must not be called for anonymous authentication"
         );
     });

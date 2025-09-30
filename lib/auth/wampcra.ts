@@ -31,7 +31,7 @@ export class WAMPCRAAuthenticator implements ClientAuthenticator {
         return this._authExtra;
     }
 
-    authenticate(challenge: Challenge): Authenticate {
+    async authenticate(challenge: Challenge): Promise<Authenticate> {
         const challengeHex = challenge.extra["challenge"];
         if (!challengeHex) {
             throw new Error("Challenge string missing in extra");
