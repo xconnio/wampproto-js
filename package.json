@@ -4,9 +4,9 @@
   "version": "0.1.0",
   "description": "Sans-IO WAMP protocol implementation in TypeScript",
   "main": "ts-built/index.js",
-  "types": "types/index.d.ts",
+  "types": "ts-built/index.d.ts",
   "scripts": {
-    "postinstall": "tsc --outDir ./ts-built",
+    "postinstall": "tsdown lib/index.ts --out-dir ts-built --format esm --dts --clean",
     "build": "tsc",
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "lint": "eslint . --ext .ts",
@@ -24,6 +24,7 @@
     "buffer": "^6.0.3",
     "cbor-x": "^1.5.9",
     "msgpackr": "^1.10.2",
+    "tsdown": "^0.15.6",
     "tweetnacl": "^1.0.3",
     "typescript": "^5.4.5"
   },
