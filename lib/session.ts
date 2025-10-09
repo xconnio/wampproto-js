@@ -62,6 +62,8 @@ export class WAMPSession {
             }
 
             this._invocationRequests.delete(msg.requestID);
+        } else if (msg instanceof Goodbye) {
+            // No handling needed, just serialize the Goodbye message
         } else {
             throw Error(`unknown message type ${typeof msg}`);
         }
