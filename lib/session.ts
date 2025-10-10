@@ -182,18 +182,13 @@ export class WAMPSession {
                     }
                     break;
                 }
-
-                case Goodbye.TYPE: {
-                    return msg;
-                }
-
-                case Abort.TYPE: {
-                    return msg;
-                }
-
                 default:
                     throw Error(`unknown error message type ${typeof msg}`)
             }
+        } else if (msg instanceof Abort) {
+            // No handling needed, just return the message
+        } else if (msg instanceof Goodbye) {
+            // No handling needed, just return the message
         } else {
             throw Error(`unknown message ${typeof msg}`)
         }
