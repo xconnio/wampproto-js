@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "wampproto",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Sans-IO WAMP protocol implementation in TypeScript",
   "main": "ts-built/index.js",
   "types": "ts-built/index.d.ts",
@@ -15,8 +15,6 @@
   },
   "scripts": {
     "prepare": "npm run build",
-    "postinstall": "npm run postinstall:build",
-    "postinstall:build": "if [ ! -f ts-built/index.js ]; then npm run build; fi",
     "build": "rollup -c",
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "lint": "eslint . --ext .ts",
