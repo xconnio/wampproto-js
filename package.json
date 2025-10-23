@@ -5,9 +5,19 @@
   "description": "Sans-IO WAMP protocol implementation in TypeScript",
   "main": "ts-built/index.js",
   "types": "ts-built/index.d.ts",
+  "exports": {
+    "import": "./ts-built/index.js",
+    "require": "./ts-built/index.cjs",
+    "types": "./ts-built/index.d.ts"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "postinstall": "tsdown lib/index.ts --out-dir ts-built --format esm --dts --clean",
-    "build": "tsc",
+    "prepare": "npm run build",
+    "postinstall": "npm run postinstall:build",
+    "postinstall:build": "if [ ! -f ts-built/index.js ]; then npm run build; fi",
+    "build": "rollup -c",
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "lint": "eslint . --ext .ts",
     "lint-fix": "eslint . --ext .ts --fix"
@@ -19,6 +29,14 @@
   "author": "Omer Akram <omer@thing.com>",
   "license": "MIT",
   "dependencies": {
+    "@rollup/plugin-typescript": "^12.1.4",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-replace": "^6.0.2",
+    "rollup": "^4.52.4",
+    "rollup-plugin-dts": "^6.2.3",
+    "tslib": "^2.8.1",
     "@noble/ed25519": "^3.0.0",
     "@noble/hashes": "^2.0.1",
     "buffer": "^6.0.3",
