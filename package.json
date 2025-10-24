@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "wampproto",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Sans-IO WAMP protocol implementation in TypeScript",
   "main": "ts-built/index.js",
   "types": "ts-built/index.d.ts",
