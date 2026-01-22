@@ -12,8 +12,8 @@ import {ApplicationError, SessionNotReady} from "./exception";
 import {Authenticate} from "./messages/authenticate";
 
 export const clientRoles: { [key: string]: { features: { [key: string]: any } } } = {
-    caller: {features: {}},
-    callee: {features: {progressive_call_results: true, call_canceling: true}},
+    caller: {features: {progressive_call_invocations: true}},
+    callee: {features: {progressive_call_invocations: true, progressive_call_results: true, call_canceling: true}},
     publisher: {features: {}},
     subscriber: {features: {}},
 };
