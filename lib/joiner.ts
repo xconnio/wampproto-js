@@ -52,7 +52,7 @@ export class Joiner {
     async receive(data: string | Uint8Array) {
         const receivedMessage: Message = this._serializer.deserialize(data)
         const toSend: Message = await this.receiveMessage(receivedMessage);
-        if (toSend !== null && toSend instanceof Authenticate) {
+        if (toSend !== null && toSend.type() === Authenticate.TYPE) {
             return this._serializer.serialize(toSend);
         }
 
@@ -60,26 +60,45 @@ export class Joiner {
     }
 
     async receiveMessage(msg: Message): Promise<Message | null> {
-        if (msg instanceof Welcome) {
-            if (this._state !== Joiner.stateHelloSent && this._state !== Joiner.stateAuthenticateSent) {
-                throw Error("received welcome when it was not expected")
+        switch (msg.type()) {
+            case Welcome.TYPE: {
+                const welcome = msg as Welcome;
+
+                if (this._state !== Joiner.stateHelloSent &&
+                    this._state !== Joiner.stateAuthenticateSent) {
+                    throw Error("received welcome when it was not expected");
+                }
+
+                this._sessionDetails = new SessionDetails(
+                    welcome.sessionID,
+                    this._realm,
+                    welcome.authID,
+                    welcome.authrole
+                );
+
+                this._state = Joiner.stateJoined;
+                return null;
             }
 
-            this._sessionDetails = new SessionDetails(msg.sessionID, this._realm, msg.authID, msg.authrole);
-            this._state = Joiner.stateJoined;
-            return null;
-        } else if (msg instanceof Challenge) {
-            if (this._state !== Joiner.stateHelloSent) {
-                throw Error("received challenge when it was not expected");
+            case Challenge.TYPE: {
+                const challenge = msg as Challenge;
+
+                if (this._state !== Joiner.stateHelloSent) {
+                    throw Error("received challenge when it was not expected");
+                }
+
+                const authenticate = await this._authenticator.authenticate(challenge);
+                this._state = Joiner.stateAuthenticateSent;
+                return authenticate;
             }
 
-            const authenticate = await this._authenticator.authenticate(msg);
-            this._state = Joiner.stateAuthenticateSent;
-            return authenticate;
-        } else if (msg instanceof Abort) {
-            throw new ApplicationError(msg.reason, msg.args, msg.kwargs);
-        } else {
-            throw Error(`received ${msg.type()} message and session is not established yet`)
+            case Abort.TYPE: {
+                const abort = msg as Abort;
+                throw new ApplicationError(abort.reason, abort.args, abort.kwargs);
+            }
+
+            default:
+                throw Error(`received ${msg.type()} message and session is not established yet`);
         }
     }
 
