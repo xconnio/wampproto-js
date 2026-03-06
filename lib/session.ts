@@ -44,9 +44,12 @@ export class WAMPSession {
         } else if (msg instanceof Unregister) {
             this._unregisterRequests[msg.requestID] = msg.registrationID;
         } else if (msg instanceof Yield) {
-            const isDeleted = this._invocationRequests.delete(msg.requestID);
-            if (!isDeleted) {
-                throw Error("cannot yield for unknown invocation request");
+            const progress = msg.options?.progress ?? false;
+            if (!progress) {
+                const isDeleted = this._invocationRequests.delete(msg.requestID);
+                if (!isDeleted) {
+                    throw Error("cannot yield for unknown invocation request");
+                }
             }
         } else if (msg instanceof Publish) {
             if (msg.options?.acknowledge ?? false) {
@@ -78,9 +81,12 @@ export class WAMPSession {
 
     receiveMessage(msg: Message): Message {
         if (msg instanceof Result) {
-            const isDeleted = this._callRequests.delete(msg.requestID);
-            if (!isDeleted) {
+            if (!this._callRequests.has(msg.requestID)) {
                 throw Error(`received ${Result.TEXT} for invalid request ID`);
+            }
+            const progress = msg.options?.progress ?? false;
+            if (!progress) {
+                this._callRequests.delete(msg.requestID);
             }
         } else if (msg instanceof Registered) {
             const isDeleted = this._registerRequests.delete(msg.requestID);
